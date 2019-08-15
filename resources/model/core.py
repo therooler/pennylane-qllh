@@ -33,6 +33,9 @@ class QMLModel(tf.keras.Model):
         self.circuit = None
         self.trainable_vars = []
 
+    def __str__(self):
+        return "QMLModel"
+
     def initialize(self, nfeatures: int):
         """
         Model initialization.
@@ -93,7 +96,7 @@ class QMLWrapper:
             QubitStateVector(x, wires=list(range(self.model.req_qub_out)))
             return qml.expval.Hermitian(obs, wires=list(range(self.model.req_qub_out)))
 
-        self.data_circuit = qml.QNode(circuit, device=self.model.data_dev)
+        self.data_circuit = qml.QNode(circuit, device=self.model.data_dev, cache=True)
 
     def _get_discr_statistics(self, X: np.ndarray, y: np.ndarray) -> None:
         """
@@ -162,26 +165,6 @@ class QMLWrapper:
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
 
-    @staticmethod
-    def _matrix_log(matrix: tf.Tensor) -> tf.Tensor:
-        """
-        Calculate matrix log2 through diagonalization of Hermitian matrix  M = U^-1 D U
-
-        Args:
-            matrix: N x N matrix
-
-        Returns: N x N matrix
-
-        """
-
-        rx, Ux = tf.linalg.eigh(matrix)
-        Ux_inv = tf.linalg.adjoint(Ux)
-        rx = tf.cast(
-            tf.math.log(tf.clip_by_value(tf.math.real(rx), 1e-13, 1e13)), rx.dtype
-        )
-        tx = tf.linalg.LinearOperatorDiag(rx).to_dense()
-        return tf.matmul(Ux, tf.matmul(tx, Ux_inv))
-
     def construct_density_matrix(self, phi: np.ndarray) -> np.ndarray:
         """
         Construct the pure density matrix belonging to a certain wavefunction using a quantum circuit.
@@ -225,12 +208,11 @@ class QMLWrapper:
         """
         assert self.model.init, "Initialize the model before calculating the loss"
 
-        obs = tf.map_fn(
+        expval = tf.map_fn(
             lambda x: self.model(inputs, x), self.req_measurements, dtype=tf.float64
         )
-        obs = tf.transpose(obs)
-
-        rho = tf.einsum("no,oij->nij", obs, self.req_measurements)
+        expval = tf.transpose(expval)
+        rho = tf.einsum("no,oij->nij", expval, self.req_measurements)
         rho += tf.eye(
             2 ** self.model.req_qub_out, 2 ** self.model.req_qub_out, dtype=tf.float64
         )
@@ -273,7 +255,17 @@ class QMLWrapper:
         optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=epsilon)
         self.lh = []
 
+        print("-------TRAINING-------")
+        print(self.model)
+        print("{} samples, {} features".format(*X.shape))
+        print(
+            "{} input qubits, {} output qubits".format(
+                self.model.req_qub_in, self.model.req_qub_out
+            )
+        )
+
         with tf.device("GPU:0"):
+
             for i in range(maxiter):
                 with tf.GradientTape() as tape:
                     loss_value = self.loss(X, data_states)
@@ -282,7 +274,6 @@ class QMLWrapper:
                     zip(grads, self.model.trainable_vars),
                     global_step=tf.compat.v1.train.get_or_create_global_step(),
                 )
-                print(i, loss_value)
                 self.lh.append(float(loss_value))
                 if i % 20 == 0:
                     print("Loss at step {:03d}: {:.6f}".format(i, loss_value))
@@ -316,6 +307,26 @@ class QMLWrapper:
         return tf.stack(
             [tf.to_float(rho[:, i, i]) for i in range(rho.shape[1])], axis=1
         ).numpy()
+
+    @staticmethod
+    def _matrix_log(matrix: tf.Tensor) -> tf.Tensor:
+        """
+        Calculate matrix log2 through diagonalization of Hermitian matrix  M = U^-1 D U
+
+        Args:
+            matrix: N x N matrix
+
+        Returns: N x N matrix
+
+        """
+
+        rx, Ux = tf.linalg.eigh(matrix)
+        Ux_inv = tf.linalg.adjoint(Ux)
+        rx = tf.cast(
+            tf.math.log(tf.clip_by_value(tf.math.real(rx), 1e-13, 1e13)), rx.dtype
+        )
+        tx = tf.linalg.LinearOperatorDiag(rx).to_dense()
+        return tf.matmul(Ux, tf.matmul(tx, Ux_inv))
 
     @staticmethod
     def add_bias(X: np.ndarray) -> np.ndarray:

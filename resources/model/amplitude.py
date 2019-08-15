@@ -30,6 +30,9 @@ class AmplitudeModel(QMLModel):
         self.model_dev = None
         self.bias = True
 
+    def __str__(self):
+        return "Amplitude Model"
+
     def initialize(self, nfeatures: int):
         """
         Model initialization.
@@ -41,25 +44,28 @@ class AmplitudeModel(QMLModel):
         """
 
         self.req_qub_in = int(np.ceil(np.log2(nfeatures)))
-        if self.req_qub_in < self.req_qub_out:
-            self.req_qub_in = self.req_qub_out
+        if self.req_qub_in <= self.req_qub_out:
+            self.req_qub_in = 2 * self.req_qub_out
 
         self.model_dev = qml.device(self.device, wires=self.req_qub_in)
 
         self.init = True
         nparams = self.req_qub_in
         self.w = tfe.Variable(
-            0.1 * (np.random.rand(1, nparams, 3) - 0.5),
+            0.1 * (np.random.rand(2, nparams, 3) - 0.5),
             name="weights",
             dtype=tf.float64,
         )
 
-        def circuit(state, params, obs=None):
+        def circuit(params0, params1, state=None, obs=None):
             QubitStateVector(state, wires=list(range(self.req_qub_out)))
-            StronglyEntanglingLayers(params, list(range(self.req_qub_in)), ranges=[1])
+            StronglyEntanglingLayers(
+                params0, list(reversed(range(self.req_qub_in))), ranges=[1]
+            )
+            StronglyEntanglingLayers(params1, list(range(self.req_qub_in)), ranges=[1])
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
-        self.circuit = TFEQNode(qml.QNode(circuit, self.model_dev))
+        self.circuit = TFEQNode(qml.QNode(circuit, self.model_dev, cache=True))
         self.trainable_vars.append(self.w)
 
     def call(self, inputs, observable):
@@ -88,7 +94,9 @@ class AmplitudeModel(QMLModel):
                 axis=1,
             )
         # strange bug with tensors not mapping correctly, unless we do this.
-        w = self.w[tf.newaxis]
+        w = self.w[:, tf.newaxis]
         return tf.map_fn(
-            lambda x: self.circuit(x, w[0], obs=observable), elems=phi, dtype=tf.float64
+            lambda x: self.circuit(w[0], w[1], state=x, obs=observable),
+            elems=phi,
+            dtype=tf.float64,
         )

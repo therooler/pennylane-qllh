@@ -1,10 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
+from resources.model.core import QMLWrapper
+
 from typing import List
 
 
 def plot_qml_landscape_binary(
-    X: np.ndarray, y: np.ndarray, wrapper, cmap="viridis", title=""
+    X: np.ndarray, y: np.ndarray, wrapper: QMLWrapper, cmap="viridis", title=""
 ):
     """
     Plot the separation boundaries in the 2D input space.
@@ -12,7 +15,7 @@ def plot_qml_landscape_binary(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The model we want to use for learning, needs to have a predict function
+        wrapper: The QMLWrapper we used for learning
         cmap: String with name of matplotlib colormap, see MPL docs
         title: String with title of the figure
 
@@ -30,12 +33,12 @@ def plot_qml_landscape_binary(
     max_grid = 2
     x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
     y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, h), np.linspace(y_min, y_max, h))
     if wrapper.bias:
         z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
     else:
         z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
-    z = z[:, 0] - z[:, 1]
+    z = z[:, 1] - z[:, 0]
     z = z.reshape(xx.shape)
     fig, ax = plt.subplots()
     ax.contour(xx, yy, z, cmap=cmap)
@@ -49,7 +52,7 @@ def plot_qml_landscape_binary(
         X[(y == class_0), 1]
         + np.random.uniform(-spread, spread, np.sum((y == class_0))),
         marker=".",
-        c=blue,
+        c=np.array([blue]),
         label="-1",
         s=25,
     )
@@ -59,7 +62,7 @@ def plot_qml_landscape_binary(
         X[(y == class_1), 1]
         + np.random.uniform(-spread, spread, np.sum((y == class_1))),
         marker="x",
-        c=red,
+        c=np.array([red]),
         label="+1",
         s=25,
     )
@@ -78,21 +81,38 @@ def plot_qml_landscape_binary(
     plt.show()
 
 
+def plot_lh(wrapper: QMLWrapper, cmap="viridis", title=""):
+    """
+
+    Args:
+        wrapper: The QMLWrapper we used for learning
+
+    """
+    cmap = plt.cm.get_cmap(cmap)
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(wrapper.lh, c=cmap(0.2))
+    ax.set_xlabel("number of iterations")
+    ax.set_ylabel("Likelihood $\mathcal{L}$")
+    ax.set_title(title)
+    plt.show()
+
+
 def plot_qml_landscape_multiclass(
     X: np.ndarray,
     y: np.ndarray,
-    wrapper,
+    wrapper: QMLWrapper,
     subplot_grid: List[int],
     cmap="viridis",
     title="",
 ):
     """
-    Plot the separation boundaries of a multiclass qml model.
+    Plot the separation boundaries of a multiclass qml model in 2D space.
 
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The model we want to use for learning
+        wrapper: The QMLWrapper we used for learning
         subplot_grid: List that specifies the grid of the subplots
         cmap: Name of MPL colormap
         title: Title of the figure
@@ -109,6 +129,12 @@ def plot_qml_landscape_multiclass(
     )
     labels = np.unique(y)
     num_classes = len(np.unique(y))
+    assert num_classes > 2, "Only {} classes found, use binary plotter instead".format(
+        num_classes
+    )
+    assert (
+        np.product(subplot_grid) == num_classes
+    ), "wrong grid size {} for {} classes".format(subplot_grid, num_classes)
     plt.rc("font", size=15)
     cmap = plt.cm.get_cmap(cmap)
     clrs = [cmap(0.0), cmap(0.5), cmap(1.0)]
@@ -136,7 +162,6 @@ def plot_qml_landscape_multiclass(
         axs = axs.reshape(1, -1)
     if subplot_grid[1] == 1:
         axs = axs.reshape(-1, 1)
-
     for i, ax in enumerate(axs.flatten()):
         for j, label in enumerate(labels):
             np.random.seed(2342)
@@ -157,7 +182,7 @@ def plot_qml_landscape_multiclass(
                     + np.random.uniform(-spread, spread, np.sum((y == label))),
                     X[(y == label), 1]
                     + np.random.uniform(-spread, spread, np.sum((y == label))),
-                    c=clrs[2],
+                    c=np.array([clrs[2]]),
                     marker=markers[label],
                     label=label,
                     s=50,

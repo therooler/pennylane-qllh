@@ -31,7 +31,7 @@ def multiclass_wave_fn():
     X = np.vstack((X_1, X_2, X_3, X_4))
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()
 
-    wrapper.train(X, y, maxiter=100, epsilon=0.001, tol=10e-6)
+    wrapper.train(X, y, maxiter=100, epsilon=0.001, tol=1e-6)
     plot_qml_landscape_multiclass(X, y, wrapper, [1, 3])
     plt.plot(wrapper.lh)
     plt.show()

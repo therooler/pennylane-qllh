@@ -34,6 +34,9 @@ class WaveFunction(QMLModel):
         self.device = device
         self.bias = True
 
+    def __str__(self):
+        return "Wave Function Model"
+
     def initialize(self, nfeatures: int):
         """
         Model initialization.
@@ -54,7 +57,7 @@ class WaveFunction(QMLModel):
             QubitStateVector(params, wires=list(range(self.req_qub_in)))
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
-        self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev))
+        self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev, cache=True))
         self.trainable_vars.append(self.w)
 
     def call(self, inputs, observable):

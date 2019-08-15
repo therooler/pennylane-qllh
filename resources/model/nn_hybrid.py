@@ -32,7 +32,10 @@ class HybridNN(QMLModel):
         self.device = device
         self.model_dev = None
         self.nn = None
-        self.bias = False
+        self.bias = True
+
+    def __str__(self):
+        return "Hybrid Neural Network Model"
 
     def initialize(self, nfeatures: int):
         """
@@ -65,7 +68,7 @@ class HybridNN(QMLModel):
             StronglyEntanglingLayers(params, list(range(self.req_qub_in)), ranges=[1])
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
-        self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev))
+        self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev, cache=True))
         self.trainable_vars = self.nn.trainable_weights
 
     def call(self, inputs, observable):

@@ -4,7 +4,7 @@ from typing import List
 
 
 def plot_qml_landscape_binary(
-    X: np.ndarray, y: np.ndarray, model, cmap="viridis", title=""
+    X: np.ndarray, y: np.ndarray, wrapper, cmap="viridis", title=""
 ):
     """
     Plot the separation boundaries in the 2D input space.
@@ -12,14 +12,14 @@ def plot_qml_landscape_binary(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        model: The model we want to use for learning, needs to have a predict function
+        wrapper: The model we want to use for learning, needs to have a predict function
         cmap: String with name of matplotlib colormap, see MPL docs
         title: String with title of the figure
 
     """
 
-    if model.bias:
-        X = model.model.add_bias(X)
+    if wrapper.model.bias:
+        X = wrapper.add_bias(X)
 
     class_0, class_1 = np.unique(y)
     plt.rc("font", size=15)
@@ -31,10 +31,10 @@ def plot_qml_landscape_binary(
     x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
     y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
     xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
-    if model.bias:
-        z = model.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
+    if wrapper.bias:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
     else:
-        z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
     z = z[:, 0] - z[:, 1]
     z = z.reshape(xx.shape)
     fig, ax = plt.subplots()
@@ -81,7 +81,7 @@ def plot_qml_landscape_binary(
 def plot_qml_landscape_multiclass(
     X: np.ndarray,
     y: np.ndarray,
-    model,
+    wrapper,
     subplot_grid: List[int],
     cmap="viridis",
     title="",
@@ -92,15 +92,15 @@ def plot_qml_landscape_multiclass(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        model: The model we want to use for learning
+        wrapper: The model we want to use for learning
         subplot_grid: List that specifies the grid of the subplots
         cmap: Name of MPL colormap
         title: Title of the figure
 
     """
 
-    if model.bias:
-        X = model.model.add_bias(X)
+    if wrapper.model.bias:
+        X = wrapper.add_bias(X)
 
     assert (
         len(subplot_grid) == 2
@@ -119,10 +119,10 @@ def plot_qml_landscape_multiclass(
     x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
     y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
     xx, yy = np.meshgrid(np.linspace(x_min, x_max, h), np.linspace(y_min, y_max, h))
-    if model.bias:
-        z = model.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
+    if wrapper.bias:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
     else:
-        z = model.predict(np.c_[xx.ravel(), yy.ravel()])
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
     sections = np.zeros_like(z)
     idx = np.argmax(z, axis=1)
     sections[np.arange(len(idx)), np.argmax(z, axis=1)] = 1

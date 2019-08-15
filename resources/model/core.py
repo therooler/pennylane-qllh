@@ -2,41 +2,38 @@ import numpy as np
 
 import pennylane as qml
 from pennylane.ops.qubit import QubitStateVector
-from pennylane.templates.layers import StronglyEntanglingLayers
-from pennylane.interfaces.tfe import TFEQNode
 import itertools as it
 
 import tensorflow as tf
-from tensorflow import keras
 
 tf.enable_eager_execution()
 
-
-class HybridNNModel(tf.keras.Model):
+class CoreModel(tf.keras.Model):
     """
-    QML model that uses a neural network to control the circuit parameters.
+    QML model template.
     """
 
-    def __init__(self, nclasses, dev_name):
+    def __init__(self, nclasses: int, device='default.qubit'):
         """
         Initialize the keras model interface.
+
 
         Args:
             nclasses: The number of classes in the data, used the determine the required output qubits.
             dev: name of Pennylane Device backend.
         """
-        super(HybridNNModel, self).__init__()
-        self.req_qub_out = int(np.ceil(np.log2(nclasses)))
-        self.req_qub_in = self.req_qub_out
-        self.data_dev = qml.device(dev_name, wires=self.req_qub_out)
-        self.dev_name = dev_name
+        super(CoreModel, self).__init__()
+        self.req_qub_out = None
+        self.req_qub_in = None
+        self.device = device
+        self.data_dev = None
         self.model_dev = None
         self.nclasses = nclasses
         self.init = False
-        self.nn = None
         self.circuit = None
+        self.trainable_vars = []
 
-    def initialize(self, nfeatures: int, req_num_obs: int):
+    def initialize(self, nfeatures: int):
         """
         The model consists of N qubits that encode a wavefunction of 2**N (real) amplitudes
         psi = \sum_i c_i e_i
@@ -45,34 +42,12 @@ class HybridNNModel(tf.keras.Model):
 
         Args:
             nfeatures: The number of features in X
+            req_num_obs: The required number of observation to construct rho
             **kwargs: Additional model arguments
 
         """
-
-        self.req_qub_in = int(np.ceil(np.log2(nfeatures)))
-        if self.req_qub_in < self.req_qub_out:
-            self.req_qub_in = self.req_qub_out
-
-        self.model_dev = qml.device(self.dev_name, wires=self.req_qub_in)
-
         self.init = True
-        nparams = self.req_qub_in
-        self.nobs = req_num_obs
-        self.nn = keras.Sequential(
-            [
-                keras.layers.Flatten(input_shape=(nfeatures,), dtype=tf.float64),
-                keras.layers.Dense(10, activation=tf.nn.relu, dtype=tf.float64),
-                keras.layers.Dense(
-                    (1 * nparams * 3), activation=tf.nn.softmax, dtype=tf.float64
-                ),
-            ]
-        )
-
-        def circuit(params, obs):
-            StronglyEntanglingLayers(params, list(range(self.req_qub_in)), ranges=[1])
-            return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
-
-        self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev))
+        pass
 
     def call(self, inputs, observable):
         """
@@ -86,29 +61,9 @@ class HybridNNModel(tf.keras.Model):
 
         """
 
-        nn_out = self.nn(inputs)
-        theta = 4 * np.pi * nn_out - 2 * np.pi
-        theta = tf.reshape(theta, (-1, 1, self.req_qub_in, 3))
-        return tf.map_fn(
-            lambda x: self.circuit(x, obs=observable), elems=theta, dtype=tf.float64
-        )
+        pass
 
-    @staticmethod
-    def add_bias(X: np.ndarray) -> np.ndarray:
-        """
-        Add a bias to the input data by adding a column of ones.
-
-        Args:
-            X: Numpy array of size N x d
-
-        Returns: Numpy array of size N x d+1
-
-        """
-        n_samples = X.shape[0]
-        return np.hstack([X, np.ones((n_samples, 1))])
-
-
-class HybridNNModelWrapper:
+class Wrapper:
     """
     QML model training
     """
@@ -123,7 +78,7 @@ class HybridNNModelWrapper:
         "id": tf.constant(np.array([[1, 0], [0, 1]]), dtype=tf.float64),
     }
 
-    def __init__(self, model: HybridNNModel):
+    def __init__(self, model):
         """
         This wrapper allows one to minimize the quantum log-likelihood for a given Amplitude-based model
 
@@ -136,14 +91,13 @@ class HybridNNModelWrapper:
         self.q_x = None
         self.req_measurements = None
         self.model = model
-        self.data_dev = qml.device("default.qubit", self.model.req_qub_out)
         self.bias = True
 
         def circuit(x, obs=None):
             QubitStateVector(x, wires=list(range(self.model.req_qub_out)))
             return qml.expval.Hermitian(obs, wires=list(range(self.model.req_qub_out)))
 
-        self.data_circuit = qml.QNode(circuit, device=self.data_dev)
+        self.data_circuit = qml.QNode(circuit, device=self.model.data_dev)
 
     def _get_discr_statistics(self, X: np.ndarray, y: np.ndarray) -> None:
         """
@@ -208,7 +162,7 @@ class HybridNNModelWrapper:
         for m in measurements:
             obs = 1
             for ob in m:
-                obs = np.kron(obs, HybridNNModelWrapper.measurements[ob])
+                obs = np.kron(obs, Wrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
 
@@ -306,8 +260,8 @@ class HybridNNModelWrapper:
         Returns:
 
         """
-        if self.bias:
-            X = self.model.add_bias(X)
+        if self.model.bias:
+            X = self.add_bias(X)
 
         assert self.model.nclasses == len(
             np.unique(y)
@@ -315,34 +269,34 @@ class HybridNNModelWrapper:
             self.model.nclasses, len(np.unique(y))
         )
         self._determine_req_measurements(False)
-        self.model.initialize(X.shape[1], self.req_measurements.shape[0])
-
         self._get_discr_statistics(X, y)
         data_states = tf.map_fn(
             self.construct_density_matrix, np.sqrt(self.q_y_x), dtype=tf.float64
         )
         data_states *= tf.reshape(self.q_x, (-1, 1, 1))
+
+        self.model.initialize(X.shape[1])
         optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=epsilon)
         self.lh = []
 
-        for i in range(maxiter):
-            with tf.GradientTape() as tape:
-                loss_value = self.loss(X, data_states)
-                grads = tape.gradient(loss_value, self.model.nn.trainable_weights)
+        with tf.device("GPU:0"):
+            for i in range(maxiter):
+                with tf.GradientTape() as tape:
+                    loss_value = self.loss(X, data_states)
+                    grads = tape.gradient(loss_value, self.model.trainable_vars)
+                optimizer.apply_gradients(
+                    zip(grads, self.model.trainable_vars),
+                    global_step=tf.compat.v1.train.get_or_create_global_step(),
+                )
+                print(i, loss_value)
+                self.lh.append(float(loss_value))
+                if i % 20 == 0:
+                    print("Loss at step {:03d}: {:.6f}".format(i, loss_value))
+                    if abs(loss_value - self.loss(X, data_states)) < tol:
+                        print("L<{} after {:03d} iterations".format(tol, i))
 
-            optimizer.apply_gradients(
-                zip(grads, self.model.nn.trainable_weights),
-                global_step=tf.compat.v1.train.get_or_create_global_step(),
-            )
-            print(i, loss_value)
-            self.lh.append(float(loss_value))
-            if i % 20 == 0:
-                print("Loss at step {:03d}: {:.6f}".format(i, loss_value))
-                if abs(loss_value - self.loss(X, data_states)) < tol:
-                    print("L<{} after {:03d} iterations".format(tol, i))
-
-                    break
-        print("Final loss: {:.6f}".format(self.loss(X, data_states)))
+                        break
+            print("Final loss: {:.6f}".format(self.loss(X, data_states)))
 
     def predict(self, inputs: np.ndarray):
         """
@@ -368,3 +322,17 @@ class HybridNNModelWrapper:
         return tf.stack(
             [tf.to_float(rho[:, i, i]) for i in range(rho.shape[1])], axis=1
         ).numpy()
+
+    @staticmethod
+    def add_bias(X: np.ndarray) -> np.ndarray:
+        """
+        Add a bias to the input data by adding a column of ones.
+
+        Args:
+            X: Numpy array of size N x d
+
+        Returns: Numpy array of size N x d+1
+
+        """
+        n_samples = X.shape[0]
+        return np.hstack([X, np.ones((n_samples, 1))])

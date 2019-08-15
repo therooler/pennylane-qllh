@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
-<title>resources.model.amp_model API documentation</title>
+<title>resources.model.nn_hybrid_model API documentation</title>
 <meta name="description" content="" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,7 +17,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>resources.model.amp_model</code></h1>
+<h1 class="title">Module <code>resources.model.nn_hybrid_model</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
@@ -30,15 +30,15 @@ from pennylane.templates.layers import StronglyEntanglingLayers
 from pennylane.interfaces.tfe import TFEQNode
 import itertools as it
 
-import tensorflow.contrib.eager as tfe
 import tensorflow as tf
+from tensorflow import keras
 
 tf.enable_eager_execution()
 
 
-class AmplitudeModel(tf.keras.Model):
+class HybridNNModel(tf.keras.Model):
     &#34;&#34;&#34;
-    QML model that only amplitude encoding.
+    QML model that uses a neural network to control the circuit parameters.
     &#34;&#34;&#34;
 
     def __init__(self, nclasses, dev_name):
@@ -47,9 +47,9 @@ class AmplitudeModel(tf.keras.Model):
 
         Args:
             nclasses: The number of classes in the data, used the determine the required output qubits.
-            dev_name: name of Pennylane Device backend.
+            dev: name of Pennylane Device backend.
         &#34;&#34;&#34;
-        super(AmplitudeModel, self).__init__()
+        super(HybridNNModel, self).__init__()
         self.req_qub_out = int(np.ceil(np.log2(nclasses)))
         self.req_qub_in = self.req_qub_out
         self.data_dev = qml.device(dev_name, wires=self.req_qub_out)
@@ -57,6 +57,7 @@ class AmplitudeModel(tf.keras.Model):
         self.model_dev = None
         self.nclasses = nclasses
         self.init = False
+        self.nn = None
         self.circuit = None
 
     def initialize(self, nfeatures: int, req_num_obs: int):
@@ -80,19 +81,22 @@ class AmplitudeModel(tf.keras.Model):
 
         self.init = True
         nparams = self.req_qub_in
-        self.w = tfe.Variable(
-            0.1 * (np.random.rand(1, nparams, 3) - 0.5),
-            name=&#34;weights&#34;,
-            dtype=tf.float64,
-        )
         self.nobs = req_num_obs
+        self.nn = keras.Sequential(
+            [
+                keras.layers.Flatten(input_shape=(nfeatures,), dtype=tf.float64),
+                keras.layers.Dense(10, activation=tf.nn.relu, dtype=tf.float64),
+                keras.layers.Dense(
+                    (1 * nparams * 3), activation=tf.nn.softmax, dtype=tf.float64
+                ),
+            ]
+        )
 
-        def circuit(state, params, obs=None):
-            QubitStateVector(state, wires=list(range(self.req_qub_out)))
+        def circuit(params, obs):
             StronglyEntanglingLayers(params, list(range(self.req_qub_in)), ranges=[1])
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
-        self.circuit = TFEQNode(qml.QNode(circuit, self.model_dev))
+        self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev))
 
     def call(self, inputs, observable):
         &#34;&#34;&#34;
@@ -105,24 +109,12 @@ class AmplitudeModel(tf.keras.Model):
         Returns: N expectation values of the observable
 
         &#34;&#34;&#34;
-        phi = inputs / tf.reshape(
-            tf.sqrt(tf.reduce_sum(tf.math.abs(inputs) ** 2, axis=1)), (-1, 1)
-        )
-        if phi.shape[1] &lt; 2 ** self.req_qub_in:
-            phi = tf.concat(
-                (
-                    phi,
-                    tf.zeros(
-                        (phi.shape[0], 2 ** self.req_qub_in - phi.shape[1]),
-                        dtype=tf.float64,
-                    ),
-                ),
-                axis=1,
-            )
-        # strange bug with tensors not mapping correctly, unless we do this.
-        w = self.w[tf.newaxis]
+
+        nn_out = self.nn(inputs)
+        theta = 4 * np.pi * nn_out - 2 * np.pi
+        theta = tf.reshape(theta, (-1, 1, self.req_qub_in, 3))
         return tf.map_fn(
-            lambda x: self.circuit(x, w[0], obs=observable), elems=phi, dtype=tf.float64
+            lambda x: self.circuit(x, obs=observable), elems=theta, dtype=tf.float64
         )
 
     @staticmethod
@@ -140,7 +132,7 @@ class AmplitudeModel(tf.keras.Model):
         return np.hstack([X, np.ones((n_samples, 1))])
 
 
-class AmplitudeModelWrapper:
+class HybridNNModelWrapper:
     &#34;&#34;&#34;
     QML model training
     &#34;&#34;&#34;
@@ -155,7 +147,7 @@ class AmplitudeModelWrapper:
         &#34;id&#34;: tf.constant(np.array([[1, 0], [0, 1]]), dtype=tf.float64),
     }
 
-    def __init__(self, model: AmplitudeModel):
+    def __init__(self, model: HybridNNModel):
         &#34;&#34;&#34;
         This wrapper allows one to minimize the quantum log-likelihood for a given Amplitude-based model
 
@@ -173,11 +165,9 @@ class AmplitudeModelWrapper:
 
         def circuit(x, obs=None):
             QubitStateVector(x, wires=list(range(self.model.req_qub_out)))
-            return qml.expval.Hermitian(
-                obs, wires=list(range(self.model.req_qub_out))
-            )
-        self.data_circuit = qml.QNode(circuit, device=self.data_dev)
+            return qml.expval.Hermitian(obs, wires=list(range(self.model.req_qub_out)))
 
+        self.data_circuit = qml.QNode(circuit, device=self.data_dev)
 
     def _get_discr_statistics(self, X: np.ndarray, y: np.ndarray) -&gt; None:
         &#34;&#34;&#34;
@@ -242,7 +232,7 @@ class AmplitudeModelWrapper:
         for m in measurements:
             obs = 1
             for ob in m:
-                obs = np.kron(obs, AmplitudeModelWrapper.measurements[ob])
+                obs = np.kron(obs, HybridNNModelWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
 
@@ -285,7 +275,7 @@ class AmplitudeModelWrapper:
             self.req_measurements
             * tf.map_fn(
                 lambda x: self.data_circuit(full_phi, obs=x.numpy()),
-                elems=self.req_measurements,
+                self.req_measurements,
                 dtype=tf.float64,
             )[:, tf.newaxis, tf.newaxis]
         )
@@ -359,24 +349,24 @@ class AmplitudeModelWrapper:
         optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=epsilon)
         self.lh = []
 
-        with tf.device(&#34;GPU:0&#34;):
-            for i in range(maxiter):
-                with tf.GradientTape() as tape:
-                    loss_value = self.loss(X, data_states)
-                    grads = tape.gradient(loss_value, [self.model.w])
-                optimizer.apply_gradients(
-                    zip(grads, [self.model.w]),
-                    global_step=tf.compat.v1.train.get_or_create_global_step(),
-                )
-                print(i, loss_value)
-                self.lh.append(float(loss_value))
-                if i % 20 == 0:
-                    print(&#34;Loss at step {:03d}: {:.6f}&#34;.format(i, loss_value))
-                    if abs(loss_value - self.loss(X, data_states)) &lt; tol:
-                        print(&#34;L&lt;{} after {:03d} iterations&#34;.format(tol, i))
+        for i in range(maxiter):
+            with tf.GradientTape() as tape:
+                loss_value = self.loss(X, data_states)
+                grads = tape.gradient(loss_value, self.model.nn.trainable_weights)
 
-                        break
-            print(&#34;Final loss: {:.6f}&#34;.format(self.loss(X, data_states)))
+            optimizer.apply_gradients(
+                zip(grads, self.model.nn.trainable_weights),
+                global_step=tf.compat.v1.train.get_or_create_global_step(),
+            )
+            print(i, loss_value)
+            self.lh.append(float(loss_value))
+            if i % 20 == 0:
+                print(&#34;Loss at step {:03d}: {:.6f}&#34;.format(i, loss_value))
+                if abs(loss_value - self.loss(X, data_states)) &lt; tol:
+                    print(&#34;L&lt;{} after {:03d} iterations&#34;.format(tol, i))
+
+                    break
+        print(&#34;Final loss: {:.6f}&#34;.format(self.loss(X, data_states)))
 
     def predict(self, inputs: np.ndarray):
         &#34;&#34;&#34;
@@ -413,25 +403,25 @@ class AmplitudeModelWrapper:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="resources.model.amp_model.AmplitudeModel"><code class="flex name class">
-<span>class <span class="ident">AmplitudeModel</span></span>
+<dt id="resources.model.nn_hybrid_model.HybridNNModel"><code class="flex name class">
+<span>class <span class="ident">HybridNNModel</span></span>
 <span>(</span><span>nclasses, dev_name)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>QML model that only amplitude encoding.</p>
+<section class="desc"><p>QML model that uses a neural network to control the circuit parameters.</p>
 <p>Initialize the keras model interface.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>nclasses</code></strong></dt>
 <dd>The number of classes in the data, used the determine the required output qubits.</dd>
-<dt><strong><code>dev_name</code></strong></dt>
+<dt><strong><code>dev</code></strong></dt>
 <dd>name of Pennylane Device backend.</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class AmplitudeModel(tf.keras.Model):
+<pre><code class="python">class HybridNNModel(tf.keras.Model):
     &#34;&#34;&#34;
-    QML model that only amplitude encoding.
+    QML model that uses a neural network to control the circuit parameters.
     &#34;&#34;&#34;
 
     def __init__(self, nclasses, dev_name):
@@ -440,9 +430,9 @@ class AmplitudeModelWrapper:
 
         Args:
             nclasses: The number of classes in the data, used the determine the required output qubits.
-            dev_name: name of Pennylane Device backend.
+            dev: name of Pennylane Device backend.
         &#34;&#34;&#34;
-        super(AmplitudeModel, self).__init__()
+        super(HybridNNModel, self).__init__()
         self.req_qub_out = int(np.ceil(np.log2(nclasses)))
         self.req_qub_in = self.req_qub_out
         self.data_dev = qml.device(dev_name, wires=self.req_qub_out)
@@ -450,6 +440,7 @@ class AmplitudeModelWrapper:
         self.model_dev = None
         self.nclasses = nclasses
         self.init = False
+        self.nn = None
         self.circuit = None
 
     def initialize(self, nfeatures: int, req_num_obs: int):
@@ -473,19 +464,22 @@ class AmplitudeModelWrapper:
 
         self.init = True
         nparams = self.req_qub_in
-        self.w = tfe.Variable(
-            0.1 * (np.random.rand(1, nparams, 3) - 0.5),
-            name=&#34;weights&#34;,
-            dtype=tf.float64,
-        )
         self.nobs = req_num_obs
+        self.nn = keras.Sequential(
+            [
+                keras.layers.Flatten(input_shape=(nfeatures,), dtype=tf.float64),
+                keras.layers.Dense(10, activation=tf.nn.relu, dtype=tf.float64),
+                keras.layers.Dense(
+                    (1 * nparams * 3), activation=tf.nn.softmax, dtype=tf.float64
+                ),
+            ]
+        )
 
-        def circuit(state, params, obs=None):
-            QubitStateVector(state, wires=list(range(self.req_qub_out)))
+        def circuit(params, obs):
             StronglyEntanglingLayers(params, list(range(self.req_qub_in)), ranges=[1])
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
-        self.circuit = TFEQNode(qml.QNode(circuit, self.model_dev))
+        self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev))
 
     def call(self, inputs, observable):
         &#34;&#34;&#34;
@@ -498,24 +492,12 @@ class AmplitudeModelWrapper:
         Returns: N expectation values of the observable
 
         &#34;&#34;&#34;
-        phi = inputs / tf.reshape(
-            tf.sqrt(tf.reduce_sum(tf.math.abs(inputs) ** 2, axis=1)), (-1, 1)
-        )
-        if phi.shape[1] &lt; 2 ** self.req_qub_in:
-            phi = tf.concat(
-                (
-                    phi,
-                    tf.zeros(
-                        (phi.shape[0], 2 ** self.req_qub_in - phi.shape[1]),
-                        dtype=tf.float64,
-                    ),
-                ),
-                axis=1,
-            )
-        # strange bug with tensors not mapping correctly, unless we do this.
-        w = self.w[tf.newaxis]
+
+        nn_out = self.nn(inputs)
+        theta = 4 * np.pi * nn_out - 2 * np.pi
+        theta = tf.reshape(theta, (-1, 1, self.req_qub_in, 3))
         return tf.map_fn(
-            lambda x: self.circuit(x, w[0], obs=observable), elems=phi, dtype=tf.float64
+            lambda x: self.circuit(x, obs=observable), elems=theta, dtype=tf.float64
         )
 
     @staticmethod
@@ -543,7 +525,7 @@ class AmplitudeModelWrapper:
 </ul>
 <h3>Static methods</h3>
 <dl>
-<dt id="resources.model.amp_model.AmplitudeModel.add_bias"><code class="name flex">
+<dt id="resources.model.nn_hybrid_model.HybridNNModel.add_bias"><code class="name flex">
 <span>def <span class="ident">add_bias</span></span>(<span>X)</span>
 </code></dt>
 <dd>
@@ -575,7 +557,7 @@ def add_bias(X: np.ndarray) -&gt; np.ndarray:
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="resources.model.amp_model.AmplitudeModel.call"><code class="name flex">
+<dt id="resources.model.nn_hybrid_model.HybridNNModel.call"><code class="name flex">
 <span>def <span class="ident">call</span></span>(<span>self, inputs, observable)</span>
 </code></dt>
 <dd>
@@ -602,28 +584,16 @@ def add_bias(X: np.ndarray) -&gt; np.ndarray:
     Returns: N expectation values of the observable
 
     &#34;&#34;&#34;
-    phi = inputs / tf.reshape(
-        tf.sqrt(tf.reduce_sum(tf.math.abs(inputs) ** 2, axis=1)), (-1, 1)
-    )
-    if phi.shape[1] &lt; 2 ** self.req_qub_in:
-        phi = tf.concat(
-            (
-                phi,
-                tf.zeros(
-                    (phi.shape[0], 2 ** self.req_qub_in - phi.shape[1]),
-                    dtype=tf.float64,
-                ),
-            ),
-            axis=1,
-        )
-    # strange bug with tensors not mapping correctly, unless we do this.
-    w = self.w[tf.newaxis]
+
+    nn_out = self.nn(inputs)
+    theta = 4 * np.pi * nn_out - 2 * np.pi
+    theta = tf.reshape(theta, (-1, 1, self.req_qub_in, 3))
     return tf.map_fn(
-        lambda x: self.circuit(x, w[0], obs=observable), elems=phi, dtype=tf.float64
+        lambda x: self.circuit(x, obs=observable), elems=theta, dtype=tf.float64
     )</code></pre>
 </details>
 </dd>
-<dt id="resources.model.amp_model.AmplitudeModel.initialize"><code class="name flex">
+<dt id="resources.model.nn_hybrid_model.HybridNNModel.initialize"><code class="name flex">
 <span>def <span class="ident">initialize</span></span>(<span>self, nfeatures, req_num_obs)</span>
 </code></dt>
 <dd>
@@ -661,25 +631,28 @@ psi = \sum_i c_i e_i</p>
 
     self.init = True
     nparams = self.req_qub_in
-    self.w = tfe.Variable(
-        0.1 * (np.random.rand(1, nparams, 3) - 0.5),
-        name=&#34;weights&#34;,
-        dtype=tf.float64,
-    )
     self.nobs = req_num_obs
+    self.nn = keras.Sequential(
+        [
+            keras.layers.Flatten(input_shape=(nfeatures,), dtype=tf.float64),
+            keras.layers.Dense(10, activation=tf.nn.relu, dtype=tf.float64),
+            keras.layers.Dense(
+                (1 * nparams * 3), activation=tf.nn.softmax, dtype=tf.float64
+            ),
+        ]
+    )
 
-    def circuit(state, params, obs=None):
-        QubitStateVector(state, wires=list(range(self.req_qub_out)))
+    def circuit(params, obs):
         StronglyEntanglingLayers(params, list(range(self.req_qub_in)), ranges=[1])
         return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
-    self.circuit = TFEQNode(qml.QNode(circuit, self.model_dev))</code></pre>
+    self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev))</code></pre>
 </details>
 </dd>
 </dl>
 </dd>
-<dt id="resources.model.amp_model.AmplitudeModelWrapper"><code class="flex name class">
-<span>class <span class="ident">AmplitudeModelWrapper</span></span>
+<dt id="resources.model.nn_hybrid_model.HybridNNModelWrapper"><code class="flex name class">
+<span>class <span class="ident">HybridNNModelWrapper</span></span>
 <span>(</span><span>model)</span>
 </code></dt>
 <dd>
@@ -692,7 +665,7 @@ psi = \sum_i c_i e_i</p>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class AmplitudeModelWrapper:
+<pre><code class="python">class HybridNNModelWrapper:
     &#34;&#34;&#34;
     QML model training
     &#34;&#34;&#34;
@@ -707,7 +680,7 @@ psi = \sum_i c_i e_i</p>
         &#34;id&#34;: tf.constant(np.array([[1, 0], [0, 1]]), dtype=tf.float64),
     }
 
-    def __init__(self, model: AmplitudeModel):
+    def __init__(self, model: HybridNNModel):
         &#34;&#34;&#34;
         This wrapper allows one to minimize the quantum log-likelihood for a given Amplitude-based model
 
@@ -725,11 +698,9 @@ psi = \sum_i c_i e_i</p>
 
         def circuit(x, obs=None):
             QubitStateVector(x, wires=list(range(self.model.req_qub_out)))
-            return qml.expval.Hermitian(
-                obs, wires=list(range(self.model.req_qub_out))
-            )
-        self.data_circuit = qml.QNode(circuit, device=self.data_dev)
+            return qml.expval.Hermitian(obs, wires=list(range(self.model.req_qub_out)))
 
+        self.data_circuit = qml.QNode(circuit, device=self.data_dev)
 
     def _get_discr_statistics(self, X: np.ndarray, y: np.ndarray) -&gt; None:
         &#34;&#34;&#34;
@@ -794,7 +765,7 @@ psi = \sum_i c_i e_i</p>
         for m in measurements:
             obs = 1
             for ob in m:
-                obs = np.kron(obs, AmplitudeModelWrapper.measurements[ob])
+                obs = np.kron(obs, HybridNNModelWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
 
@@ -837,7 +808,7 @@ psi = \sum_i c_i e_i</p>
             self.req_measurements
             * tf.map_fn(
                 lambda x: self.data_circuit(full_phi, obs=x.numpy()),
-                elems=self.req_measurements,
+                self.req_measurements,
                 dtype=tf.float64,
             )[:, tf.newaxis, tf.newaxis]
         )
@@ -911,24 +882,24 @@ psi = \sum_i c_i e_i</p>
         optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=epsilon)
         self.lh = []
 
-        with tf.device(&#34;GPU:0&#34;):
-            for i in range(maxiter):
-                with tf.GradientTape() as tape:
-                    loss_value = self.loss(X, data_states)
-                    grads = tape.gradient(loss_value, [self.model.w])
-                optimizer.apply_gradients(
-                    zip(grads, [self.model.w]),
-                    global_step=tf.compat.v1.train.get_or_create_global_step(),
-                )
-                print(i, loss_value)
-                self.lh.append(float(loss_value))
-                if i % 20 == 0:
-                    print(&#34;Loss at step {:03d}: {:.6f}&#34;.format(i, loss_value))
-                    if abs(loss_value - self.loss(X, data_states)) &lt; tol:
-                        print(&#34;L&lt;{} after {:03d} iterations&#34;.format(tol, i))
+        for i in range(maxiter):
+            with tf.GradientTape() as tape:
+                loss_value = self.loss(X, data_states)
+                grads = tape.gradient(loss_value, self.model.nn.trainable_weights)
 
-                        break
-            print(&#34;Final loss: {:.6f}&#34;.format(self.loss(X, data_states)))
+            optimizer.apply_gradients(
+                zip(grads, self.model.nn.trainable_weights),
+                global_step=tf.compat.v1.train.get_or_create_global_step(),
+            )
+            print(i, loss_value)
+            self.lh.append(float(loss_value))
+            if i % 20 == 0:
+                print(&#34;Loss at step {:03d}: {:.6f}&#34;.format(i, loss_value))
+                if abs(loss_value - self.loss(X, data_states)) &lt; tol:
+                    print(&#34;L&lt;{} after {:03d} iterations&#34;.format(tol, i))
+
+                    break
+        print(&#34;Final loss: {:.6f}&#34;.format(self.loss(X, data_states)))
 
     def predict(self, inputs: np.ndarray):
         &#34;&#34;&#34;
@@ -957,14 +928,14 @@ psi = \sum_i c_i e_i</p>
 </details>
 <h3>Class variables</h3>
 <dl>
-<dt id="resources.model.amp_model.AmplitudeModelWrapper.measurements"><code class="name">var <span class="ident">measurements</span></code></dt>
+<dt id="resources.model.nn_hybrid_model.HybridNNModelWrapper.measurements"><code class="name">var <span class="ident">measurements</span></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="resources.model.amp_model.AmplitudeModelWrapper.construct_density_matrix"><code class="name flex">
+<dt id="resources.model.nn_hybrid_model.HybridNNModelWrapper.construct_density_matrix"><code class="name flex">
 <span>def <span class="ident">construct_density_matrix</span></span>(<span>self, phi)</span>
 </code></dt>
 <dd>
@@ -996,7 +967,7 @@ psi = \sum_i c_i e_i</p>
         self.req_measurements
         * tf.map_fn(
             lambda x: self.data_circuit(full_phi, obs=x.numpy()),
-            elems=self.req_measurements,
+            self.req_measurements,
             dtype=tf.float64,
         )[:, tf.newaxis, tf.newaxis]
     )
@@ -1008,7 +979,7 @@ psi = \sum_i c_i e_i</p>
     return rho</code></pre>
 </details>
 </dd>
-<dt id="resources.model.amp_model.AmplitudeModelWrapper.loss"><code class="name flex">
+<dt id="resources.model.nn_hybrid_model.HybridNNModelWrapper.loss"><code class="name flex">
 <span>def <span class="ident">loss</span></span>(<span>self, inputs, eta)</span>
 </code></dt>
 <dd>
@@ -1055,7 +1026,7 @@ psi = \sum_i c_i e_i</p>
     return tf.reduce_mean(lh)</code></pre>
 </details>
 </dd>
-<dt id="resources.model.amp_model.AmplitudeModelWrapper.predict"><code class="name flex">
+<dt id="resources.model.nn_hybrid_model.HybridNNModelWrapper.predict"><code class="name flex">
 <span>def <span class="ident">predict</span></span>(<span>self, inputs)</span>
 </code></dt>
 <dd>
@@ -1093,7 +1064,7 @@ psi = \sum_i c_i e_i</p>
     ).numpy()</code></pre>
 </details>
 </dd>
-<dt id="resources.model.amp_model.AmplitudeModelWrapper.train"><code class="name flex">
+<dt id="resources.model.nn_hybrid_model.HybridNNModelWrapper.train"><code class="name flex">
 <span>def <span class="ident">train</span></span>(<span>self, X, y, epsilon=0.1, maxiter=100, tol=0.1)</span>
 </code></dt>
 <dd>
@@ -1147,24 +1118,24 @@ psi = \sum_i c_i e_i</p>
     optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=epsilon)
     self.lh = []
 
-    with tf.device(&#34;GPU:0&#34;):
-        for i in range(maxiter):
-            with tf.GradientTape() as tape:
-                loss_value = self.loss(X, data_states)
-                grads = tape.gradient(loss_value, [self.model.w])
-            optimizer.apply_gradients(
-                zip(grads, [self.model.w]),
-                global_step=tf.compat.v1.train.get_or_create_global_step(),
-            )
-            print(i, loss_value)
-            self.lh.append(float(loss_value))
-            if i % 20 == 0:
-                print(&#34;Loss at step {:03d}: {:.6f}&#34;.format(i, loss_value))
-                if abs(loss_value - self.loss(X, data_states)) &lt; tol:
-                    print(&#34;L&lt;{} after {:03d} iterations&#34;.format(tol, i))
+    for i in range(maxiter):
+        with tf.GradientTape() as tape:
+            loss_value = self.loss(X, data_states)
+            grads = tape.gradient(loss_value, self.model.nn.trainable_weights)
 
-                    break
-        print(&#34;Final loss: {:.6f}&#34;.format(self.loss(X, data_states)))</code></pre>
+        optimizer.apply_gradients(
+            zip(grads, self.model.nn.trainable_weights),
+            global_step=tf.compat.v1.train.get_or_create_global_step(),
+        )
+        print(i, loss_value)
+        self.lh.append(float(loss_value))
+        if i % 20 == 0:
+            print(&#34;Loss at step {:03d}: {:.6f}&#34;.format(i, loss_value))
+            if abs(loss_value - self.loss(X, data_states)) &lt; tol:
+                print(&#34;L&lt;{} after {:03d} iterations&#34;.format(tol, i))
+
+                break
+    print(&#34;Final loss: {:.6f}&#34;.format(self.loss(X, data_states)))</code></pre>
 </details>
 </dd>
 </dl>
@@ -1186,21 +1157,21 @@ psi = \sum_i c_i e_i</p>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="resources.model.amp_model.AmplitudeModel" href="#resources.model.amp_model.AmplitudeModel">AmplitudeModel</a></code></h4>
+<h4><code><a title="resources.model.nn_hybrid_model.HybridNNModel" href="#resources.model.nn_hybrid_model.HybridNNModel">HybridNNModel</a></code></h4>
 <ul class="">
-<li><code><a title="resources.model.amp_model.AmplitudeModel.add_bias" href="#resources.model.amp_model.AmplitudeModel.add_bias">add_bias</a></code></li>
-<li><code><a title="resources.model.amp_model.AmplitudeModel.call" href="#resources.model.amp_model.AmplitudeModel.call">call</a></code></li>
-<li><code><a title="resources.model.amp_model.AmplitudeModel.initialize" href="#resources.model.amp_model.AmplitudeModel.initialize">initialize</a></code></li>
+<li><code><a title="resources.model.nn_hybrid_model.HybridNNModel.add_bias" href="#resources.model.nn_hybrid_model.HybridNNModel.add_bias">add_bias</a></code></li>
+<li><code><a title="resources.model.nn_hybrid_model.HybridNNModel.call" href="#resources.model.nn_hybrid_model.HybridNNModel.call">call</a></code></li>
+<li><code><a title="resources.model.nn_hybrid_model.HybridNNModel.initialize" href="#resources.model.nn_hybrid_model.HybridNNModel.initialize">initialize</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="resources.model.amp_model.AmplitudeModelWrapper" href="#resources.model.amp_model.AmplitudeModelWrapper">AmplitudeModelWrapper</a></code></h4>
+<h4><code><a title="resources.model.nn_hybrid_model.HybridNNModelWrapper" href="#resources.model.nn_hybrid_model.HybridNNModelWrapper">HybridNNModelWrapper</a></code></h4>
 <ul class="">
-<li><code><a title="resources.model.amp_model.AmplitudeModelWrapper.construct_density_matrix" href="#resources.model.amp_model.AmplitudeModelWrapper.construct_density_matrix">construct_density_matrix</a></code></li>
-<li><code><a title="resources.model.amp_model.AmplitudeModelWrapper.loss" href="#resources.model.amp_model.AmplitudeModelWrapper.loss">loss</a></code></li>
-<li><code><a title="resources.model.amp_model.AmplitudeModelWrapper.measurements" href="#resources.model.amp_model.AmplitudeModelWrapper.measurements">measurements</a></code></li>
-<li><code><a title="resources.model.amp_model.AmplitudeModelWrapper.predict" href="#resources.model.amp_model.AmplitudeModelWrapper.predict">predict</a></code></li>
-<li><code><a title="resources.model.amp_model.AmplitudeModelWrapper.train" href="#resources.model.amp_model.AmplitudeModelWrapper.train">train</a></code></li>
+<li><code><a title="resources.model.nn_hybrid_model.HybridNNModelWrapper.construct_density_matrix" href="#resources.model.nn_hybrid_model.HybridNNModelWrapper.construct_density_matrix">construct_density_matrix</a></code></li>
+<li><code><a title="resources.model.nn_hybrid_model.HybridNNModelWrapper.loss" href="#resources.model.nn_hybrid_model.HybridNNModelWrapper.loss">loss</a></code></li>
+<li><code><a title="resources.model.nn_hybrid_model.HybridNNModelWrapper.measurements" href="#resources.model.nn_hybrid_model.HybridNNModelWrapper.measurements">measurements</a></code></li>
+<li><code><a title="resources.model.nn_hybrid_model.HybridNNModelWrapper.predict" href="#resources.model.nn_hybrid_model.HybridNNModelWrapper.predict">predict</a></code></li>
+<li><code><a title="resources.model.nn_hybrid_model.HybridNNModelWrapper.train" href="#resources.model.nn_hybrid_model.HybridNNModelWrapper.train">train</a></code></li>
 </ul>
 </li>
 </ul>

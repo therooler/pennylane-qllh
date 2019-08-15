@@ -149,11 +149,9 @@ class AmplitudeModelWrapper:
 
         def circuit(x, obs=None):
             QubitStateVector(x, wires=list(range(self.model.req_qub_out)))
-            return qml.expval.Hermitian(
-                obs, wires=list(range(self.model.req_qub_out))
-            )
-        self.data_circuit = qml.QNode(circuit, device=self.data_dev)
+            return qml.expval.Hermitian(obs, wires=list(range(self.model.req_qub_out)))
 
+        self.data_circuit = qml.QNode(circuit, device=self.data_dev)
 
     def _get_discr_statistics(self, X: np.ndarray, y: np.ndarray) -> None:
         """

@@ -131,9 +131,7 @@ class WavefunctionModelWrapper:
 
         def circuit(x, obs=None):
             QubitStateVector(x, wires=list(range(self.model.req_qub_out)))
-            return qml.expval.Hermitian(
-                obs, wires=list(range(self.model.req_qub_out))
-            )
+            return qml.expval.Hermitian(obs, wires=list(range(self.model.req_qub_out)))
 
         self.data_circuit = qml.QNode(circuit, device=self.data_dev)
 

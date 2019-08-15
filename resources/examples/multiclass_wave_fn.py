@@ -1,5 +1,5 @@
 from resources.model.wave_fn import WaveFunction
-from resources.model.core import Wrapper
+from resources.model.core import QMLWrapper
 from resources.utils.plot import plot_qml_landscape_multiclass
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +14,7 @@ def multiclass_wave_fn():
     # tf.enable_eager_execution()
 
     model = WaveFunction(nclasses=3, device="default.qubit")
-    wrapper = Wrapper(model)
+    wrapper = QMLWrapper(model)
 
     number_of_copies = 3
     # PERFECT PROBLEM

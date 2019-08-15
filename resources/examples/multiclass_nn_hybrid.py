@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from resources.model.nn_hybrid import HybridNN
-from resources.model.core import Wrapper
+from resources.model.core import QMLWrapper
 from resources.utils.plot import plot_qml_landscape_multiclass
 
 
@@ -16,7 +16,7 @@ def multiclass_hybrid_nn():
     # tf.enable_eager_execution()
 
     model = HybridNN(nclasses=3, device="default.qubit")
-    wrapper = Wrapper(model)
+    wrapper = QMLWrapper(model)
 
     number_of_copies = 3
     # PERFECT PROBLEM

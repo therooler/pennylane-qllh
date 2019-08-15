@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from resources.model.amplitude import AmplitudeModel
-from resources.model.core import Wrapper
+from resources.model.core import QMLWrapper
 from resources.utils.plot import plot_qml_landscape_multiclass
 
 
@@ -16,7 +16,7 @@ def multiclass_amplitude():
     # tf.enable_eager_execution()
 
     model = AmplitudeModel(nclasses=3, device="default.qubit")
-    wrapper = Wrapper(model)
+    wrapper = QMLWrapper(model)
 
     noise = 0.25
 

@@ -4,7 +4,7 @@ import pennylane as qml
 from pennylane.ops.qubit import QubitStateVector
 from pennylane.interfaces.tfe import TFEQNode
 
-from resources.model.core import CoreModel
+from resources.model.core import QMLModel
 
 import tensorflow.contrib.eager as tfe
 import tensorflow as tf
@@ -12,7 +12,7 @@ import tensorflow as tf
 tf.enable_eager_execution()
 
 
-class WaveFunction(CoreModel):
+class WaveFunction(QMLModel):
     """
     QML model which encodes a wave function and learns a parameterized quantum circuit.
     """
@@ -36,15 +36,10 @@ class WaveFunction(CoreModel):
 
     def initialize(self, nfeatures: int):
         """
-        The model consists of N qubits that encode a wavefunction of 2**N (real) amplitudes
-        psi = \sum_i c_i e_i
-
-        For each amplitude c_i we have a weight vector w_i so that c_i = w_i dot x  / ||w_i dot x ||
+        Model initialization.
 
         Args:
             nfeatures: The number of features in X
-            req_num_obs: The required number of observation to construct rho
-            **kwargs: Additional model arguments
 
         """
         self.init = True

@@ -4,7 +4,7 @@ import pennylane as qml
 from pennylane.templates.layers import StronglyEntanglingLayers
 from pennylane.interfaces.tfe import TFEQNode
 
-from resources.model.core import CoreModel
+from resources.model.core import QMLModel
 
 import tensorflow as tf
 from tensorflow import keras
@@ -12,9 +12,9 @@ from tensorflow import keras
 tf.enable_eager_execution()
 
 
-class HybridNN(CoreModel):
+class HybridNN(QMLModel):
     """
-    QML model that uses a neural network to control the circuit parameters.
+    QML model that uses a neural network to learn quantum circuit parameters.
     """
 
     def __init__(self, nclasses, device):
@@ -23,7 +23,7 @@ class HybridNN(CoreModel):
 
         Args:
             nclasses: The number of classes in the data, used the determine the required output qubits.
-            dev: name of Pennylane Device backend.
+            device: name of Pennylane Device backend.
         """
         super(HybridNN, self).__init__(nclasses, device)
         self.req_qub_out = int(np.ceil(np.log2(nclasses)))
@@ -36,14 +36,10 @@ class HybridNN(CoreModel):
 
     def initialize(self, nfeatures: int):
         """
-        The model consists of N qubits that encode a wavefunction of 2**N (real) amplitudes
-        psi = \sum_i c_i e_i
-
-        For each amplitude c_i we have a weight vector w_i so that c_i = w_i dot x  / ||w_i dot x ||
+        Model initialization.
 
         Args:
             nfeatures: The number of features in X
-            **kwargs: Additional model arguments
 
         """
 
@@ -90,4 +86,3 @@ class HybridNN(CoreModel):
         return tf.map_fn(
             lambda x: self.circuit(x, obs=observable), elems=theta, dtype=tf.float64
         )
-

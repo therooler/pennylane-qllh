@@ -4,17 +4,17 @@ import pennylane as qml
 from pennylane.ops.qubit import QubitStateVector
 from pennylane.templates.layers import StronglyEntanglingLayers
 from pennylane.interfaces.tfe import TFEQNode
-from resources.model.core import CoreModel
+from resources.model.core import QMLModel
 import tensorflow.contrib.eager as tfe
 import tensorflow as tf
 
 
-class AmplitudeModel(CoreModel):
+class AmplitudeModel(QMLModel):
     """
     QML model that only amplitude encoding.
     """
 
-    def __init__(self, nclasses, device='default.qubit'):
+    def __init__(self, nclasses, device="default.qubit"):
         """
         Initialize the keras model interface.
 
@@ -32,10 +32,7 @@ class AmplitudeModel(CoreModel):
 
     def initialize(self, nfeatures: int):
         """
-        The model consists of N qubits that encode a wavefunction of 2**N (real) amplitudes
-        psi = \sum_i c_i e_i
-
-        For each amplitude c_i we have a weight vector w_i so that c_i = w_i dot x  / ||w_i dot x ||
+        Model initialization.
 
         Args:
             nfeatures: The number of features in X
@@ -64,6 +61,7 @@ class AmplitudeModel(CoreModel):
 
         self.circuit = TFEQNode(qml.QNode(circuit, self.model_dev))
         self.trainable_vars.append(self.w)
+
     def call(self, inputs, observable):
         """
         Given some obsersable, we calculate the output of the model.

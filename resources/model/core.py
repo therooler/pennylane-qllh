@@ -8,21 +8,21 @@ import tensorflow as tf
 
 tf.enable_eager_execution()
 
-class CoreModel(tf.keras.Model):
+
+class QMLModel(tf.keras.Model):
     """
     QML model template.
     """
 
-    def __init__(self, nclasses: int, device='default.qubit'):
+    def __init__(self, nclasses: int, device="default.qubit"):
         """
         Initialize the keras model interface.
 
-
         Args:
             nclasses: The number of classes in the data, used the determine the required output qubits.
-            dev: name of Pennylane Device backend.
+            device: name of Pennylane Device backend.
         """
-        super(CoreModel, self).__init__()
+        super(QMLModel, self).__init__()
         self.req_qub_out = None
         self.req_qub_in = None
         self.device = device
@@ -35,15 +35,10 @@ class CoreModel(tf.keras.Model):
 
     def initialize(self, nfeatures: int):
         """
-        The model consists of N qubits that encode a wavefunction of 2**N (real) amplitudes
-        psi = \sum_i c_i e_i
-
-        For each amplitude c_i we have a weight vector w_i so that c_i = w_i dot x  / ||w_i dot x ||
+        Model initialization.
 
         Args:
             nfeatures: The number of features in X
-            req_num_obs: The required number of observation to construct rho
-            **kwargs: Additional model arguments
 
         """
         self.init = True
@@ -63,7 +58,8 @@ class CoreModel(tf.keras.Model):
 
         pass
 
-class Wrapper:
+
+class QMLWrapper:
     """
     QML model training
     """
@@ -78,9 +74,9 @@ class Wrapper:
         "id": tf.constant(np.array([[1, 0], [0, 1]]), dtype=tf.float64),
     }
 
-    def __init__(self, model):
+    def __init__(self, model: QMLModel):
         """
-        This wrapper allows one to minimize the quantum log-likelihood for a given Amplitude-based model
+        Wrapper allows one to minimize the quantum log-likelihood for a given QMLModel
 
         Args:
             model: The QML model we want to use for learning
@@ -133,8 +129,8 @@ class Wrapper:
         self.q_x = np.zeros((nsamples, 1))
         # Get statistics per class
         for i in range(nsamples):
-            for j, c in enumerate(classes):
-                self.q_y_x[i, j] = _q_y_x(c, X[i, :])
+            for j, cl in enumerate(classes):
+                self.q_y_x[i, j] = _q_y_x(cl, X[i, :])
             self.q_x[i] = _q_x(X[i, :])
 
     def _determine_req_measurements(self, complex=False) -> None:
@@ -162,7 +158,7 @@ class Wrapper:
         for m in measurements:
             obs = 1
             for ob in m:
-                obs = np.kron(obs, Wrapper.measurements[ob])
+                obs = np.kron(obs, QMLWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
 
@@ -257,8 +253,6 @@ class Wrapper:
             maxiter: Maximum number of iterations before convergence.
             tol: Likelihood tolerance threshhold.
 
-        Returns:
-
         """
         if self.model.bias:
             X = self.add_bias(X)
@@ -298,13 +292,13 @@ class Wrapper:
                         break
             print("Final loss: {:.6f}".format(self.loss(X, data_states)))
 
-    def predict(self, inputs: np.ndarray):
+    def predict(self, inputs: np.ndarray) -> np.ndarray:
         """
 
         Args:
             inputs: Mxd matrix of a batch of M samples with d features
 
-        Returns:
+        Returns: array of size M x nclasses with probabilities
 
         """
 

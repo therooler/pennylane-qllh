@@ -55,7 +55,9 @@ def multiclass_amplitude():
     Y_3 = np.tile([2], (number_of_copies, 1))
     Y_4 = np.tile([2], (number_of_copies, 1))
 
-    Y_3[:int(noise * number_of_copies)] = np.random.randint(0,2,(int(noise * number_of_copies),1))
+    Y_3[: int(noise * number_of_copies)] = np.random.randint(
+        0, 2, (int(noise * number_of_copies), 1)
+    )
 
     X = np.vstack((X_1, X_2, X_3, X_4))
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()
@@ -111,7 +113,9 @@ if __name__ == &#34;__main__&#34;:
     Y_3 = np.tile([2], (number_of_copies, 1))
     Y_4 = np.tile([2], (number_of_copies, 1))
 
-    Y_3[:int(noise * number_of_copies)] = np.random.randint(0,2,(int(noise * number_of_copies),1))
+    Y_3[: int(noise * number_of_copies)] = np.random.randint(
+        0, 2, (int(noise * number_of_copies), 1)
+    )
 
     X = np.vstack((X_1, X_2, X_3, X_4))
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()

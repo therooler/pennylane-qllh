@@ -24,11 +24,14 @@
 <summary>Source code</summary>
 <pre><code class="python">import matplotlib.pyplot as plt
 import numpy as np
+
+from resources.model.core import QMLWrapper
+
 from typing import List
 
 
 def plot_qml_landscape_binary(
-    X: np.ndarray, y: np.ndarray, wrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
+    X: np.ndarray, y: np.ndarray, wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
 ):
     &#34;&#34;&#34;
     Plot the separation boundaries in the 2D input space.
@@ -36,7 +39,7 @@ def plot_qml_landscape_binary(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The model we want to use for learning, needs to have a predict function
+        wrapper: The QMLWrapper we used for learning
         cmap: String with name of matplotlib colormap, see MPL docs
         title: String with title of the figure
 
@@ -54,12 +57,12 @@ def plot_qml_landscape_binary(
     max_grid = 2
     x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
     y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, h), np.linspace(y_min, y_max, h))
     if wrapper.bias:
         z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
     else:
         z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
-    z = z[:, 0] - z[:, 1]
+    z = z[:, 1] - z[:, 0]
     z = z.reshape(xx.shape)
     fig, ax = plt.subplots()
     ax.contour(xx, yy, z, cmap=cmap)
@@ -73,7 +76,7 @@ def plot_qml_landscape_binary(
         X[(y == class_0), 1]
         + np.random.uniform(-spread, spread, np.sum((y == class_0))),
         marker=&#34;.&#34;,
-        c=blue,
+        c=np.array([blue]),
         label=&#34;-1&#34;,
         s=25,
     )
@@ -83,7 +86,7 @@ def plot_qml_landscape_binary(
         X[(y == class_1), 1]
         + np.random.uniform(-spread, spread, np.sum((y == class_1))),
         marker=&#34;x&#34;,
-        c=red,
+        c=np.array([red]),
         label=&#34;+1&#34;,
         s=25,
     )
@@ -102,21 +105,38 @@ def plot_qml_landscape_binary(
     plt.show()
 
 
+def plot_lh(wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
+    &#34;&#34;&#34;
+
+    Args:
+        wrapper: The QMLWrapper we used for learning
+
+    &#34;&#34;&#34;
+    cmap = plt.cm.get_cmap(cmap)
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(wrapper.lh, c=cmap(0.2))
+    ax.set_xlabel(&#34;number of iterations&#34;)
+    ax.set_ylabel(&#34;Likelihood $\mathcal{L}$&#34;)
+    ax.set_title(title)
+    plt.show()
+
+
 def plot_qml_landscape_multiclass(
     X: np.ndarray,
     y: np.ndarray,
-    wrapper,
+    wrapper: QMLWrapper,
     subplot_grid: List[int],
     cmap=&#34;viridis&#34;,
     title=&#34;&#34;,
 ):
     &#34;&#34;&#34;
-    Plot the separation boundaries of a multiclass qml model.
+    Plot the separation boundaries of a multiclass qml model in 2D space.
 
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The model we want to use for learning
+        wrapper: The QMLWrapper we used for learning
         subplot_grid: List that specifies the grid of the subplots
         cmap: Name of MPL colormap
         title: Title of the figure
@@ -133,6 +153,12 @@ def plot_qml_landscape_multiclass(
     )
     labels = np.unique(y)
     num_classes = len(np.unique(y))
+    assert num_classes &gt; 2, &#34;Only {} classes found, use binary plotter instead&#34;.format(
+        num_classes
+    )
+    assert (
+        np.product(subplot_grid) == num_classes
+    ), &#34;wrong grid size {} for {} classes&#34;.format(subplot_grid, num_classes)
     plt.rc(&#34;font&#34;, size=15)
     cmap = plt.cm.get_cmap(cmap)
     clrs = [cmap(0.0), cmap(0.5), cmap(1.0)]
@@ -160,7 +186,6 @@ def plot_qml_landscape_multiclass(
         axs = axs.reshape(1, -1)
     if subplot_grid[1] == 1:
         axs = axs.reshape(-1, 1)
-
     for i, ax in enumerate(axs.flatten()):
         for j, label in enumerate(labels):
             np.random.seed(2342)
@@ -181,7 +206,7 @@ def plot_qml_landscape_multiclass(
                     + np.random.uniform(-spread, spread, np.sum((y == label))),
                     X[(y == label), 1]
                     + np.random.uniform(-spread, spread, np.sum((y == label))),
-                    c=clrs[2],
+                    c=np.array([clrs[2]]),
                     marker=markers[label],
                     label=label,
                     s=50,
@@ -234,6 +259,34 @@ def plot_qml_landscape_multiclass(
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
+<dt id="resources.utils.plot.plot_lh"><code class="name flex">
+<span>def <span class="ident">plot_lh</span></span>(<span>wrapper, cmap='viridis', title='')</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>wrapper</code></strong></dt>
+<dd>The QMLWrapper we used for learning</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def plot_lh(wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
+    &#34;&#34;&#34;
+
+    Args:
+        wrapper: The QMLWrapper we used for learning
+
+    &#34;&#34;&#34;
+    cmap = plt.cm.get_cmap(cmap)
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(wrapper.lh, c=cmap(0.2))
+    ax.set_xlabel(&#34;number of iterations&#34;)
+    ax.set_ylabel(&#34;Likelihood $\mathcal{L}$&#34;)
+    ax.set_title(title)
+    plt.show()</code></pre>
+</details>
+</dd>
 <dt id="resources.utils.plot.plot_qml_landscape_binary"><code class="name flex">
 <span>def <span class="ident">plot_qml_landscape_binary</span></span>(<span>X, y, wrapper, cmap='viridis', title='')</span>
 </code></dt>
@@ -246,7 +299,7 @@ def plot_qml_landscape_multiclass(
 <dt><strong><code>y</code></strong></dt>
 <dd>Length N vector with labels.</dd>
 <dt><strong><code>wrapper</code></strong></dt>
-<dd>The model we want to use for learning, needs to have a predict function</dd>
+<dd>The QMLWrapper we used for learning</dd>
 <dt><strong><code>cmap</code></strong></dt>
 <dd>String with name of matplotlib colormap, see MPL docs</dd>
 <dt><strong><code>title</code></strong></dt>
@@ -255,7 +308,7 @@ def plot_qml_landscape_multiclass(
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def plot_qml_landscape_binary(
-    X: np.ndarray, y: np.ndarray, wrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
+    X: np.ndarray, y: np.ndarray, wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
 ):
     &#34;&#34;&#34;
     Plot the separation boundaries in the 2D input space.
@@ -263,7 +316,7 @@ def plot_qml_landscape_multiclass(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The model we want to use for learning, needs to have a predict function
+        wrapper: The QMLWrapper we used for learning
         cmap: String with name of matplotlib colormap, see MPL docs
         title: String with title of the figure
 
@@ -281,12 +334,12 @@ def plot_qml_landscape_multiclass(
     max_grid = 2
     x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
     y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
-    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, h), np.linspace(y_min, y_max, h))
     if wrapper.bias:
         z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
     else:
         z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
-    z = z[:, 0] - z[:, 1]
+    z = z[:, 1] - z[:, 0]
     z = z.reshape(xx.shape)
     fig, ax = plt.subplots()
     ax.contour(xx, yy, z, cmap=cmap)
@@ -300,7 +353,7 @@ def plot_qml_landscape_multiclass(
         X[(y == class_0), 1]
         + np.random.uniform(-spread, spread, np.sum((y == class_0))),
         marker=&#34;.&#34;,
-        c=blue,
+        c=np.array([blue]),
         label=&#34;-1&#34;,
         s=25,
     )
@@ -310,7 +363,7 @@ def plot_qml_landscape_multiclass(
         X[(y == class_1), 1]
         + np.random.uniform(-spread, spread, np.sum((y == class_1))),
         marker=&#34;x&#34;,
-        c=red,
+        c=np.array([red]),
         label=&#34;+1&#34;,
         s=25,
     )
@@ -333,7 +386,7 @@ def plot_qml_landscape_multiclass(
 <span>def <span class="ident">plot_qml_landscape_multiclass</span></span>(<span>X, y, wrapper, subplot_grid, cmap='viridis', title='')</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Plot the separation boundaries of a multiclass qml model.</p>
+<section class="desc"><p>Plot the separation boundaries of a multiclass qml model in 2D space.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>X</code></strong></dt>
@@ -341,7 +394,7 @@ def plot_qml_landscape_multiclass(
 <dt><strong><code>y</code></strong></dt>
 <dd>Length N vector with labels.</dd>
 <dt><strong><code>wrapper</code></strong></dt>
-<dd>The model we want to use for learning</dd>
+<dd>The QMLWrapper we used for learning</dd>
 <dt><strong><code>subplot_grid</code></strong></dt>
 <dd>List that specifies the grid of the subplots</dd>
 <dt><strong><code>cmap</code></strong></dt>
@@ -354,18 +407,18 @@ def plot_qml_landscape_multiclass(
 <pre><code class="python">def plot_qml_landscape_multiclass(
     X: np.ndarray,
     y: np.ndarray,
-    wrapper,
+    wrapper: QMLWrapper,
     subplot_grid: List[int],
     cmap=&#34;viridis&#34;,
     title=&#34;&#34;,
 ):
     &#34;&#34;&#34;
-    Plot the separation boundaries of a multiclass qml model.
+    Plot the separation boundaries of a multiclass qml model in 2D space.
 
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The model we want to use for learning
+        wrapper: The QMLWrapper we used for learning
         subplot_grid: List that specifies the grid of the subplots
         cmap: Name of MPL colormap
         title: Title of the figure
@@ -382,6 +435,12 @@ def plot_qml_landscape_multiclass(
     )
     labels = np.unique(y)
     num_classes = len(np.unique(y))
+    assert num_classes &gt; 2, &#34;Only {} classes found, use binary plotter instead&#34;.format(
+        num_classes
+    )
+    assert (
+        np.product(subplot_grid) == num_classes
+    ), &#34;wrong grid size {} for {} classes&#34;.format(subplot_grid, num_classes)
     plt.rc(&#34;font&#34;, size=15)
     cmap = plt.cm.get_cmap(cmap)
     clrs = [cmap(0.0), cmap(0.5), cmap(1.0)]
@@ -409,7 +468,6 @@ def plot_qml_landscape_multiclass(
         axs = axs.reshape(1, -1)
     if subplot_grid[1] == 1:
         axs = axs.reshape(-1, 1)
-
     for i, ax in enumerate(axs.flatten()):
         for j, label in enumerate(labels):
             np.random.seed(2342)
@@ -430,7 +488,7 @@ def plot_qml_landscape_multiclass(
                     + np.random.uniform(-spread, spread, np.sum((y == label))),
                     X[(y == label), 1]
                     + np.random.uniform(-spread, spread, np.sum((y == label))),
-                    c=clrs[2],
+                    c=np.array([clrs[2]]),
                     marker=markers[label],
                     label=label,
                     s=50,
@@ -494,6 +552,7 @@ def plot_qml_landscape_multiclass(
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
+<li><code><a title="resources.utils.plot.plot_lh" href="#resources.utils.plot.plot_lh">plot_lh</a></code></li>
 <li><code><a title="resources.utils.plot.plot_qml_landscape_binary" href="#resources.utils.plot.plot_qml_landscape_binary">plot_qml_landscape_binary</a></code></li>
 <li><code><a title="resources.utils.plot.plot_qml_landscape_multiclass" href="#resources.utils.plot.plot_qml_landscape_multiclass">plot_qml_landscape_multiclass</a></code></li>
 </ul>

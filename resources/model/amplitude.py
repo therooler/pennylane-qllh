@@ -66,9 +66,7 @@ class AmplitudeModel(QMLModel):
 
         def circuit(params0, state=None, obs=None):
             QubitStateVector(state, wires=list(range(self.req_qub_out)))
-            StronglyEntanglingLayers(
-                params0, list(range(self.req_qub_in)), ranges=[1]
-            )
+            StronglyEntanglingLayers(params0, list(range(self.req_qub_in)), ranges=[1])
 
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 

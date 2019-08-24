@@ -131,7 +131,7 @@ def plot_qml_landscape_multiclass(
     num_classes = len(np.unique(y))
     if num_classes == 2:
         print("Only {} classes found, calling binary plotter instead")
-        plot_qml_landscape_binary(X,y,wrapper, cmap=cmap)
+        plot_qml_landscape_binary(X, y, wrapper, cmap=cmap)
         return
 
     assert (

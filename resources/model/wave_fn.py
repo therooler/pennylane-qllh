@@ -47,17 +47,21 @@ class WaveFunction(QMLModel):
         """
         self.init = True
         nparams = 2 ** self.req_qub_in
+
+        # parameters for the linear predictor that encodes the amplitude
         self.w = tfe.Variable(
             0.1 * (np.random.rand(nfeatures, nparams) - 0.5),
             name="weights",
             dtype=tf.float64,
         )
-
+        # quantum circuit
         def circuit(params, obs=None):
             QubitStateVector(params, wires=list(range(self.req_qub_in)))
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
+        # create a QNode that can be incorporated in an Eager TF model
         self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev, cache=True))
+        # add the trainable variables to a list for optimization
         self.trainable_vars.append(self.w)
 
     def call(self, inputs, observable):
@@ -71,7 +75,7 @@ class WaveFunction(QMLModel):
         Returns: N expectation values of the observable
 
         """
-
+        # encode the features into a normed wavefunctions
         phi = inputs @ self.w
         phi /= tf.reshape(
             tf.sqrt(tf.reduce_sum(tf.math.abs(phi) ** 2, axis=1)), (-1, 1)

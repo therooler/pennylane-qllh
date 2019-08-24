@@ -45,7 +45,7 @@ class QMLModel(tf.keras.Model):
 
         """
         self.init = True
-        pass
+        raise NotImplementedError
 
     def call(self, inputs, observable):
         """
@@ -59,7 +59,7 @@ class QMLModel(tf.keras.Model):
 
         """
 
-        pass
+        raise NotImplementedError
 
 
 class QMLWrapper:
@@ -156,7 +156,9 @@ class QMLWrapper:
         else:
             for m in it.product(["sx", "sz", "id"], repeat=self.model.req_qub_out):
                 measurements.append(m)
+        # remove the idenity measurement
         measurements.remove(tuple("id" for _ in range(self.model.req_qub_out)))
+        # create constant tensor containing the required measurements.
         self.req_measurements = []
         for m in measurements:
             obs = 1
@@ -175,12 +177,15 @@ class QMLWrapper:
         Returns: A density matrix as ndarray.
 
         """
+        # Fill the full wavefunction with the conditional probabilities q(x|y)
         full_phi = np.zeros((2 ** self.model.req_qub_out))
         full_phi[: len(phi)] = phi
+
         assert np.isclose(
             sum(np.abs(full_phi) ** 2), 1
         ), "Wavefunction must be normed to 1"
-        rho = (
+        # obtain the required expectation values to construct the density matrix from the data circuit.
+        expval = (
             self.req_measurements
             * tf.map_fn(
                 lambda x: self.data_circuit(full_phi, obs=x.numpy()),
@@ -188,16 +193,19 @@ class QMLWrapper:
                 dtype=tf.float64,
             )[:, tf.newaxis, tf.newaxis]
         )
-        rho = tf.reduce_sum(rho, axis=0)
-        rho += tf.eye(
+        # combine the tomography measurements
+        eta = tf.reduce_sum(expval, axis=0)
+        eta += tf.eye(
             2 ** self.model.req_qub_out, 2 ** self.model.req_qub_out, dtype=tf.float64
         )
-        rho /= 2 ** self.model.req_qub_out
-        return rho
+        # normalization,
+        eta /= tf.trace(eta)
+        return eta
 
     def loss(self, inputs: np.ndarray, eta: tf.Tensor) -> tf.float64:
         """
-        Determine the loss of a batch of inputs, eta is the corresponding data density matrix
+        Determine the quantum log-likelihood of a batch of inputs, eta is the
+        corresponding data density matrix
 
         Args:
             inputs: Mxd matrix of a batch of M samples with d features
@@ -208,6 +216,7 @@ class QMLWrapper:
         """
         assert self.model.init, "Initialize the model before calculating the loss"
 
+        # obtain the required expectation values to construct the density matrix from the data circuit.
         expval = tf.map_fn(
             lambda x: self.model(inputs, x), self.req_measurements, dtype=tf.float64
         )
@@ -216,12 +225,12 @@ class QMLWrapper:
         rho += tf.eye(
             2 ** self.model.req_qub_out, 2 ** self.model.req_qub_out, dtype=tf.float64
         )
-
-        # Trace(sx sz) gives a delta function which gives an additonal factor 2
+        # normalization
         rho /= tf.trace(rho)[:, tf.newaxis, tf.newaxis]
         log_rho = self._matrix_log(rho)
-        # Adding regularization for params?
+        # calculate quantum log-likelihood
         lh = -tf.trace(eta @ log_rho)
+        # aggregate loss over all samples
         return tf.reduce_mean(lh)
 
     def train(self, X: np.ndarray, y: np.ndarray, epsilon=0.1, maxiter=100, tol=0.1):
@@ -236,6 +245,7 @@ class QMLWrapper:
             tol: Likelihood tolerance threshhold.
 
         """
+        # add bias to inputs
         if self.model.bias:
             X = self.add_bias(X)
 
@@ -244,17 +254,20 @@ class QMLWrapper:
         ), "Model expects at {} classes, when y contains {} classes".format(
             self.model.nclasses, len(np.unique(y))
         )
+        # determine the required measurements and get empirical statistics
         self._determine_req_measurements(False)
         self._get_discr_statistics(X, y)
         data_states = tf.map_fn(
             self.construct_density_matrix, np.sqrt(self.q_y_x), dtype=tf.float64
         )
+        # multiply with qx (prior)
         data_states *= tf.reshape(self.q_x, (-1, 1, 1))
-
+        # intialize the model
         self.model.initialize(X.shape[1])
+
         optimizer = tf.compat.v1.train.GradientDescentOptimizer(learning_rate=epsilon)
         self.lh = []
-
+        # print training info
         print("-------TRAINING-------")
         print(self.model)
         print("{} samples, {} features".format(*X.shape))
@@ -263,25 +276,24 @@ class QMLWrapper:
                 self.model.req_qub_in, self.model.req_qub_out
             )
         )
+        # training loop
+        for i in range(maxiter):
+            # calculate and apply gradients
+            with tf.GradientTape() as tape:
+                loss_value = self.loss(X, data_states)
+                grads = tape.gradient(loss_value, self.model.trainable_vars)
+            optimizer.apply_gradients(
+                zip(grads, self.model.trainable_vars),
+                global_step=tf.compat.v1.train.get_or_create_global_step(),
+            )
+            self.lh.append(float(loss_value))
+            if i % 20 == 0:
+                print("Loss at step {:03d}: {:.6f}".format(i, loss_value))
+                if abs(loss_value - self.loss(X, data_states)) < tol:
+                    print("L<{} after {:03d} iterations".format(tol, i))
 
-        with tf.device("GPU:0"):
-
-            for i in range(maxiter):
-                with tf.GradientTape() as tape:
-                    loss_value = self.loss(X, data_states)
-                    grads = tape.gradient(loss_value, self.model.trainable_vars)
-                optimizer.apply_gradients(
-                    zip(grads, self.model.trainable_vars),
-                    global_step=tf.compat.v1.train.get_or_create_global_step(),
-                )
-                self.lh.append(float(loss_value))
-                if i % 20 == 0:
-                    print("Loss at step {:03d}: {:.6f}".format(i, loss_value))
-                    if abs(loss_value - self.loss(X, data_states)) < tol:
-                        print("L<{} after {:03d} iterations".format(tol, i))
-
-                        break
-            print("Final loss: {:.6f}".format(self.loss(X, data_states)))
+                    break
+        print("Final loss: {:.6f}".format(self.loss(X, data_states)))
 
     def predict(self, inputs: np.ndarray) -> np.ndarray:
         """
@@ -294,16 +306,19 @@ class QMLWrapper:
         """
 
         assert self.model.init, "Initialize the model before predicting data"
-        obs = tf.map_fn(
+        # obtain the required expectation values to construct the density matrix from the data circuit.
+        expval = tf.map_fn(
             lambda x: self.model(inputs, x), self.req_measurements, dtype=tf.float64
         )
-        obs = tf.transpose(obs)
-        rho = tf.einsum("no,oij->nij", obs, self.req_measurements)
+        expval = tf.transpose(expval)
+        # combine the tomography measurements
+        rho = tf.einsum("no,oij->nij", expval, self.req_measurements)
         rho += tf.eye(
             2 ** self.model.req_qub_out, 2 ** self.model.req_qub_out, dtype=tf.float64
         )
-        # Trace(sx sz) gives a delt0 function which gives an additonal factor 2
+        # normalization
         rho /= tf.trace(rho)[:, tf.newaxis, tf.newaxis]
+        # stack probabilties for their respective classes
         return tf.stack(
             [tf.to_float(rho[:, i, i]) for i in range(rho.shape[1])], axis=1
         ).numpy()
@@ -319,7 +334,6 @@ class QMLWrapper:
         Returns: N x N matrix
 
         """
-
         rx, Ux = tf.linalg.eigh(matrix)
         Ux_inv = tf.linalg.adjoint(Ux)
         rx = tf.cast(

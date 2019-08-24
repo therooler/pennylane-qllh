@@ -69,15 +69,16 @@ class HybridNN(QMLModel):
             nfeatures: The number of features in X
 
         &#34;&#34;&#34;
-
+        # we require qubits equal to log2 of the number of features for amplitude encoding
         self.req_qub_in = int(np.ceil(np.log2(nfeatures)))
-        if self.req_qub_in &lt; self.req_qub_out:
-            self.req_qub_in = self.req_qub_out
+        # ensure that the number input qubits is twice the number of output qubits
+        self.req_qub_in = 2 * self.req_qub_out
 
         self.model_dev = qml.device(self.device, wires=self.req_qub_in)
-
         self.init = True
         nparams = self.req_qub_in
+
+        # make a small neural network with 10 hidden neurons
         self.nn = keras.Sequential(
             [
                 keras.layers.Flatten(input_shape=(nfeatures,), dtype=tf.float64),
@@ -88,11 +89,14 @@ class HybridNN(QMLModel):
             ]
         )
 
+        # quantum circuit
         def circuit(params, obs):
             StronglyEntanglingLayers(params, list(range(self.req_qub_in)), ranges=[1])
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
+        # create a QNode that can be incorporated in an Eager TF model
         self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev, cache=True))
+        # add the trainable variables to a list for optimization
         self.trainable_vars = self.nn.trainable_weights
 
     def call(self, inputs, observable):
@@ -106,9 +110,11 @@ class HybridNN(QMLModel):
         Returns: N expectation values of the observable
 
         &#34;&#34;&#34;
-
+        # calculate te neural network output (0,1)
         nn_out = self.nn(inputs)
-        theta = 4 * np.pi * nn_out - 2 * np.pi
+        # scale to (-2pi, 2pi
+        theta = 2 * np.pi * nn_out
+        # pass these as parameters to the circuit.
         theta = tf.reshape(theta, (-1, 1, self.req_qub_in, 3))
         return tf.map_fn(
             lambda x: self.circuit(x, obs=observable), elems=theta, dtype=tf.float64
@@ -173,15 +179,16 @@ class HybridNN(QMLModel):
             nfeatures: The number of features in X
 
         &#34;&#34;&#34;
-
+        # we require qubits equal to log2 of the number of features for amplitude encoding
         self.req_qub_in = int(np.ceil(np.log2(nfeatures)))
-        if self.req_qub_in &lt; self.req_qub_out:
-            self.req_qub_in = self.req_qub_out
+        # ensure that the number input qubits is twice the number of output qubits
+        self.req_qub_in = 2 * self.req_qub_out
 
         self.model_dev = qml.device(self.device, wires=self.req_qub_in)
-
         self.init = True
         nparams = self.req_qub_in
+
+        # make a small neural network with 10 hidden neurons
         self.nn = keras.Sequential(
             [
                 keras.layers.Flatten(input_shape=(nfeatures,), dtype=tf.float64),
@@ -192,11 +199,14 @@ class HybridNN(QMLModel):
             ]
         )
 
+        # quantum circuit
         def circuit(params, obs):
             StronglyEntanglingLayers(params, list(range(self.req_qub_in)), ranges=[1])
             return qml.expval.Hermitian(obs, wires=list(range(self.req_qub_out)))
 
+        # create a QNode that can be incorporated in an Eager TF model
         self.circuit = TFEQNode(qml.QNode(circuit, device=self.model_dev, cache=True))
+        # add the trainable variables to a list for optimization
         self.trainable_vars = self.nn.trainable_weights
 
     def call(self, inputs, observable):
@@ -210,9 +220,11 @@ class HybridNN(QMLModel):
         Returns: N expectation values of the observable
 
         &#34;&#34;&#34;
-
+        # calculate te neural network output (0,1)
         nn_out = self.nn(inputs)
-        theta = 4 * np.pi * nn_out - 2 * np.pi
+        # scale to (-2pi, 2pi
+        theta = 2 * np.pi * nn_out
+        # pass these as parameters to the circuit.
         theta = tf.reshape(theta, (-1, 1, self.req_qub_in, 3))
         return tf.map_fn(
             lambda x: self.circuit(x, obs=observable), elems=theta, dtype=tf.float64

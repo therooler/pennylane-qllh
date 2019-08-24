@@ -76,7 +76,6 @@ class WaveFunction(QMLModel):
         phi /= tf.reshape(
             tf.sqrt(tf.reduce_sum(tf.math.abs(phi) ** 2, axis=1)), (-1, 1)
         )
-
         return tf.map_fn(
             lambda x: self.circuit(x, obs=observable), elems=phi, dtype=tf.float64
         )

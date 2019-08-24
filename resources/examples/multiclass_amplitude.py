@@ -36,10 +36,10 @@ def multiclass_amplitude():
     #     0, 2, (int(noise * number_of_copies), 1)
     # )
 
-    X = np.vstack((X_1, X_2, X_3, X_4))
+    X = np.vstack((X_1, X_2, X_3, X_4)) + 1
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()
 
-    wrapper.train(X, y, maxiter=250, epsilon=0.1, tol=1e-6)
+    wrapper.train(X, y, maxiter=100, epsilon=0.1, tol=1e-6)
     plot_qml_landscape_multiclass(X, y, wrapper, [1, 3])
     plot_lh(wrapper)
 

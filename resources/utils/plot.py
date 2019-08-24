@@ -124,14 +124,16 @@ def plot_qml_landscape_multiclass(
 
     assert (
         len(subplot_grid) == 2
-    ), "Expected subplot_grid to have length 2, but go iterable with length {}".format(
+    ), "Expected subplot_grid to have length 2, but got iterable with length {}".format(
         len(subplot_grid)
     )
     labels = np.unique(y)
     num_classes = len(np.unique(y))
-    assert num_classes > 2, "Only {} classes found, use binary plotter instead".format(
-        num_classes
-    )
+    if num_classes == 2:
+        print("Only {} classes found, calling binary plotter instead")
+        plot_qml_landscape_binary(X,y,wrapper, cmap=cmap)
+        return
+
     assert (
         np.product(subplot_grid) == num_classes
     ), "wrong grid size {} for {} classes".format(subplot_grid, num_classes)

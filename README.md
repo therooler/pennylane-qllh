@@ -6,6 +6,11 @@ Onion?).
 
 This project is far from finished, but the most important code is there: The `QLModel` and `QMLWrapper` classes are the core of this project and seem to work fine for now.
 
+# Installing
+
+Make a conda environment with python 3.7 and install the packages in `requirements.txt`. 
+When I have the time I will package it properly and provide a `environment.yml` for conda.
+
 # Whitepaper
 
 The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf). The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728).

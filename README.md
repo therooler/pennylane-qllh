@@ -8,7 +8,7 @@ This project is far from finished, but the most important code is there: The `QL
 
 # Whitepaper
 
-The research behind this project can be found in the (whitepaper)[https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf]
+The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf)
 
 # Documentation
 

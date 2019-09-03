@@ -1,0 +1,13 @@
+# using conda 4.6.12
+name: pennylane-qllh
+dependencies:
+  - python=3.7
+  - pip
+  - matplotlib=3.1.1
+  - numpy=1.16.4
+  - tensorflow=1.14.0 # or tensorflow-gpu=1.14.0
+  - pip:
+      - pennylane==0.4.0
+      - pdoc3==0.6.3
+      - black==19.3b0
+

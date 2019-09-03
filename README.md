@@ -8,8 +8,25 @@ This project is far from finished, but the most important code is there: The `QL
 
 # Installing
 
-Make a conda environment with python 3.7 and install the packages in `requirements.txt`. 
-When I have the time I will package it properly and provide a `environment.yml` for conda.
+The following works with Conda 4.6.12. Please use the provided environment.yml
+
+ 1. Install Conda: [Quickstart](https://www.digitalocean.com/community/tutorials/how-to-install-anaconda-on-ubuntu-18-04-quickstart)
+
+ 2. Clone the git
+ 
+    `git clone https://gitlab.com/rooler/pennylane-qllh.git`
+
+ 3. Create a Virtual Environment
+
+    `conda env create -f environment.yml`
+
+    It is good to know that you can use this to update the env:
+
+    `conda env update -f environment.yml`
+
+    And removing it can be done with:
+
+    `conda remove --name pennylane-qllh --all`
 
 # Whitepaper
 

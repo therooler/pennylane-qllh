@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.6.3" />
-<title>resources API documentation</title>
+<title>rockyraccoon API documentation</title>
 <meta name="description" content="Main module of the QML quantum log-likelihood library …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
@@ -17,36 +17,40 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>resources</code></h1>
+<h1 class="title">Module <code>rockyraccoon</code></h1>
 </header>
 <section id="section-intro">
 <p>Main module of the QML quantum log-likelihood library</p>
 <h1 id="quantum-machine-learning-library-for-quantum-log-likelihood-minimization-qmlqllm">Quantum Machine Learning Library for Quantum log-likelihood minimization (QMLQLLM)</h1>
-<p>A quantum machine learning framework for minimizing the quantum log-likelihood. I am considering a
-catchier name for this framework in line with PennyLane and Strawberry Fields (Rocky Raccoon? Glass
-Onion?).</p>
+<p>A quantum machine learning framework for minimizing the quantum log-likelihood. In line with PennyLane, Strawberry Fields and Blackbird
+my working title for this framework is Rocky Raccoon (if you could call it that).</p>
 <p>This project is far from finished, but the most important code is there: The <code>QLModel</code> and <code>QMLWrapper</code> classes are the core of this project and seem to work fine for now.</p>
 <h1 id="installing">Installing</h1>
-<p>The following works with Conda 4.6.12. Please use the provided environment.yml</p>
+<p>The following works with Conda 4.6.12. Please use the provided environment.yml.
+If you have a CUDA enabled GPU, consider installing <code>tensorflow-gpu==1.14.0</code> instead by
+changing the <code>environment.yml</code> file accordingly.</p>
 <ol>
 <li>
 <p>Install Conda: <a href="https://www.digitalocean.com/community/tutorials/how-to-install-anaconda-on-ubuntu-18-04-quickstart">Quickstart</a></p>
 </li>
 <li>
-<p>Clone the git</p>
+<p>Clone the git:</p>
 <p><code>git clone &lt;https://gitlab.com/rooler/pennylane-qllh.git</code>&gt;</p>
 </li>
 <li>
-<p>Create a Virtual Environment</p>
+<p>Create a Virtual Environment:</p>
 <p><code>conda env create -f environment.yml</code></p>
 <p>It is good to know that you can use this to update the env:</p>
 <p><code>conda env update -f environment.yml</code></p>
 <p>And removing it can be done with:</p>
-<p><code>conda remove --name pennylane-qllh --all</code></p>
+<p><code>conda remove --name pennylane-qllh --all</code>
+4. Install the <code>pennylane-qllh</code> package:</p>
 </li>
 </ol>
 <h1 id="whitepaper">Whitepaper</h1>
-<p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress). The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> (published next month in Physical Review A).</p>
+<p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress).
+The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> and is
+published in <a href="http://doi.org/10.1103/PhysRevA.100.020301">Physical Review A</a>.</p>
 <h1 id="documentation">Documentation</h1>
 <p>The code documentation can be found <a href="https://therooler.github.io/pennylane-qllh/">here</a>. The Docs are generated automatically
 with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted according to PEP8 standards using
@@ -68,15 +72,15 @@ with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted acco
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="resources.examples" href="examples/index.html">resources.examples</a></code></dt>
+<dt><code class="name"><a title="rockyraccoon.examples" href="examples/index.html">rockyraccoon.examples</a></code></dt>
 <dd>
 <section class="desc"><p>Examples of data fitted with this library</p></section>
 </dd>
-<dt><code class="name"><a title="resources.model" href="model/index.html">resources.model</a></code></dt>
+<dt><code class="name"><a title="rockyraccoon.model" href="model/index.html">rockyraccoon.model</a></code></dt>
 <dd>
 <section class="desc"><p>Module with QML models</p></section>
 </dd>
-<dt><code class="name"><a title="resources.utils" href="utils/index.html">resources.utils</a></code></dt>
+<dt><code class="name"><a title="rockyraccoon.utils" href="utils/index.html">rockyraccoon.utils</a></code></dt>
 <dd>
 <section class="desc"><p>Utility functions</p></section>
 </dd>
@@ -105,9 +109,9 @@ with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted acco
 <ul id="index">
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="resources.examples" href="examples/index.html">resources.examples</a></code></li>
-<li><code><a title="resources.model" href="model/index.html">resources.model</a></code></li>
-<li><code><a title="resources.utils" href="utils/index.html">resources.utils</a></code></li>
+<li><code><a title="rockyraccoon.examples" href="examples/index.html">rockyraccoon.examples</a></code></li>
+<li><code><a title="rockyraccoon.model" href="model/index.html">rockyraccoon.model</a></code></li>
+<li><code><a title="rockyraccoon.utils" href="utils/index.html">rockyraccoon.utils</a></code></li>
 </ul>
 </li>
 </ul>

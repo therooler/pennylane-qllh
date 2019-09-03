@@ -1,7 +1,7 @@
 # Quantum Machine Learning Library for Quantum log-likelihood minimization (QMLQLLM)
 
 A quantum machine learning framework for minimizing the quantum log-likelihood. In line with PennyLane, Strawberry Fields and Blackbird
-my working title for this framework is Rocky Raccoon (if you could call it that).
+my working title for this framework is Rocky Raccoon.
 
 This project is far from finished, but the most important code is there: The `QLModel` and `QMLWrapper` classes are the core of this project and seem to work fine for now.
 
@@ -28,7 +28,13 @@ changing the `environment.yml` file accordingly.
     And removing it can be done with:
 
     `conda remove --name pennylane-qllh --all`
- 4. Install the `pennylane-qllh` package:
+ 4. Activate the environment and install the `rockyraccoon` package:
+    
+    `conda activate pennylane-qllh`
+    
+    `python setup.py install clean`
+
+ 
 
 # Whitepaper
 

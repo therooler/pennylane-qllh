@@ -1,4 +1,4 @@
-from setuptools import setup, Command, find_packages
+from setuptools import setup, Command
 import os
 
 

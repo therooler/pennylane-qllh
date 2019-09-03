@@ -4,3 +4,4 @@
 /tutorials/
 .idea
 /legacy/
+*.pyc

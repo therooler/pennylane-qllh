@@ -26,8 +26,11 @@
 catchier name for this framework in line with PennyLane and Strawberry Fields (Rocky Raccoon? Glass
 Onion?).</p>
 <p>This project is far from finished, but the most important code is there: The <code>QLModel</code> and <code>QMLWrapper</code> classes are the core of this project and seem to work fine for now.</p>
+<h1 id="installing">Installing</h1>
+<p>Make a conda environment with python 3.7 and install the packages in <code>requirements.txt</code>.
+When I have the time I will package it properly and provide a <code>environment.yml</code> for conda.</p>
 <h1 id="whitepaper">Whitepaper</h1>
-<p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a>. The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a>.</p>
+<p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress). The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> (published next month in Physical Review A).</p>
 <h1 id="documentation">Documentation</h1>
 <p>The code documentation can be found <a href="https://therooler.github.io/pennylane-qllh/">here</a>. The Docs are generated automatically
 with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted according to PEP8 standards using
@@ -36,6 +39,8 @@ with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted acco
 <p>Explain <code>QLModel</code> and <code>QMLWrapper</code>.</p>
 <h1 id="examples">Examples</h1>
 <p>Explain examples from whitepaper.</p>
+<h1 id="future-work">Future Work</h1>
+<p>Parallelize everything.</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">&#34;&#34;&#34;Main module of the QML quantum log-likelihood library
@@ -73,10 +78,12 @@ with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted acco
 <div class="toc">
 <ul>
 <li><a href="#quantum-machine-learning-library-for-quantum-log-likelihood-minimization-qmlqllm">Quantum Machine Learning Library for Quantum log-likelihood minimization (QMLQLLM)</a></li>
+<li><a href="#installing">Installing</a></li>
 <li><a href="#whitepaper">Whitepaper</a></li>
 <li><a href="#documentation">Documentation</a></li>
 <li><a href="#constructing-your-own-model">Constructing your own model</a></li>
 <li><a href="#examples">Examples</a></li>
+<li><a href="#future-work">Future Work</a></li>
 </ul>
 </div>
 <ul id="index">

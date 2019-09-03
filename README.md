@@ -13,7 +13,7 @@ When I have the time I will package it properly and provide a `environment.yml` 
 
 # Whitepaper
 
-The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf). The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728).
+The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) (work in progress). The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728) (published next month in Physical Review A).
 
 # Documentation
 
@@ -28,3 +28,7 @@ Explain `QLModel` and `QMLWrapper`.
 # Examples
 
 Explain examples from whitepaper.
+
+# Future Work
+
+Parallelize everything.

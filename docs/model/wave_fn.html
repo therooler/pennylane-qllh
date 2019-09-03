@@ -28,7 +28,7 @@ import pennylane as qml
 from pennylane.ops.qubit import QubitStateVector
 from pennylane.interfaces.tfe import TFEQNode
 
-from rockyraccoon.model.core import QMLModel
+from rockyraccoon.model.core import RockyModel
 
 import tensorflow.contrib.eager as tfe
 import tensorflow as tf
@@ -36,7 +36,7 @@ import tensorflow as tf
 tf.enable_eager_execution()
 
 
-class WaveFunction(QMLModel):
+class WaveFunction(RockyModel):
     &#34;&#34;&#34;
     QML model which encodes a wave function and learns a parameterized quantum circuit.
     &#34;&#34;&#34;
@@ -134,7 +134,7 @@ class WaveFunction(QMLModel):
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class WaveFunction(QMLModel):
+<pre><code class="python">class WaveFunction(RockyModel):
     &#34;&#34;&#34;
     QML model which encodes a wave function and learns a parameterized quantum circuit.
     &#34;&#34;&#34;
@@ -208,7 +208,7 @@ class WaveFunction(QMLModel):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="rockyraccoon.model.core.QMLModel" href="core.html#rockyraccoon.model.core.QMLModel">QMLModel</a></li>
+<li><a title="rockyraccoon.model.core.RockyModel" href="core.html#rockyraccoon.model.core.RockyModel">RockyModel</a></li>
 <li>tensorflow.python.keras.engine.training.Model</li>
 <li>tensorflow.python.keras.engine.network.Network</li>
 <li>tensorflow.python.keras.engine.base_layer.Layer</li>
@@ -218,10 +218,10 @@ class WaveFunction(QMLModel):
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="rockyraccoon.model.core.QMLModel" href="core.html#rockyraccoon.model.core.QMLModel">QMLModel</a></b></code>:
+<li><code><b><a title="rockyraccoon.model.core.RockyModel" href="core.html#rockyraccoon.model.core.RockyModel">RockyModel</a></b></code>:
 <ul class="hlist">
-<li><code><a title="rockyraccoon.model.core.QMLModel.call" href="core.html#rockyraccoon.model.core.QMLModel.call">call</a></code></li>
-<li><code><a title="rockyraccoon.model.core.QMLModel.initialize" href="core.html#rockyraccoon.model.core.QMLModel.initialize">initialize</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RockyModel.call" href="core.html#rockyraccoon.model.core.RockyModel.call">call</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RockyModel.initialize" href="core.html#rockyraccoon.model.core.RockyModel.initialize">initialize</a></code></li>
 </ul>
 </li>
 </ul>

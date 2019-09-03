@@ -49,7 +49,7 @@ changing the <code>environment.yml</code> file accordingly.</p>
 <p><code>python setup.py install clean</code></p>
 </li>
 </ol>
-<h1 id="whitepaper">Whitepaper</h1>
+<h1 id="research">Research</h1>
 <p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress).
 The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> and is
 published in <a href="http://doi.org/10.1103/PhysRevA.100.020301">Physical Review A</a>.</p>
@@ -58,7 +58,21 @@ published in <a href="http://doi.org/10.1103/PhysRevA.100.020301">Physical Revie
 with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted according to PEP8 standards using
 <a href="https://black.readthedocs.io/en/stable/">Black</a>.</p>
 <h1 id="constructing-your-own-model">Constructing your own model</h1>
-<p>Explain <code>QLModel</code> and <code>QMLWrapper</code>.</p>
+<p>Rocky Raccoon consists of two parts. A <code>RockyModel</code> class that serves as a template for the hybrid-quantum model
+we wish to train, and a <code>RaccoonWrapper</code> class that minimizes the quantum log-likelihood. Both these classes
+can be found in the <a title="rockyraccoon.model.core" href="model/core.html"><code>rockyraccoon.model.core</code></a> module. </p>
+<p>Writing your own <code>RockyModel</code> means defining a class that inherits from <code>RockyModel</code> and overloading the
+methods defined there. If this is done correctly, <code>RaccoonWrapper</code> will do the heavy lifting for us.
+Below we will discuss the requirements of a <code>RockyModel</code> by looking at the individual methods.</p>
+<ol>
+<li>RockyModels inherit from keras Models, so that we have a clear template already for what is required
+for tensorflow to work.</li>
+</ol>
+<pre><code class="python">class RockyModel(tf.keras.Model):
+    &quot;&quot;&quot;
+    QML model template.
+    &quot;&quot;&quot;
+</code></pre>
 <h1 id="examples">Examples</h1>
 <p>Explain examples from whitepaper.</p>
 <h1 id="future-work">Future Work</h1>
@@ -101,7 +115,7 @@ with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted acco
 <ul>
 <li><a href="#quantum-machine-learning-library-for-quantum-log-likelihood-minimization-qmlqllm">Quantum Machine Learning Library for Quantum log-likelihood minimization (QMLQLLM)</a></li>
 <li><a href="#installing">Installing</a></li>
-<li><a href="#whitepaper">Whitepaper</a></li>
+<li><a href="#research">Research</a></li>
 <li><a href="#documentation">Documentation</a></li>
 <li><a href="#constructing-your-own-model">Constructing your own model</a></li>
 <li><a href="#examples">Examples</a></li>

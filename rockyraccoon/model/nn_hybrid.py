@@ -26,7 +26,6 @@ class HybridNN(RockyModel):
             device: name of Pennylane Device backend.
         """
         super(HybridNN, self).__init__(nclasses, device)
-        self.req_qub_out = int(np.ceil(np.log2(nclasses)))
         self.req_qub_in = self.req_qub_out
         self.data_dev = qml.device(device, wires=self.req_qub_out)
         self.device = device

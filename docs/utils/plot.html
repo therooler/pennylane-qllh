@@ -25,13 +25,13 @@
 <pre><code class="python">import matplotlib.pyplot as plt
 import numpy as np
 
-from rockyraccoon.model.core import QMLWrapper
+from rockyraccoon.model.core import RaccoonWrapper
 
 from typing import List
 
 
 def plot_qml_landscape_binary(
-    X: np.ndarray, y: np.ndarray, wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
+    X: np.ndarray, y: np.ndarray, wrapper: RaccoonWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
 ):
     &#34;&#34;&#34;
     Plot the separation boundaries in the 2D input space.
@@ -39,7 +39,7 @@ def plot_qml_landscape_binary(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
         cmap: String with name of matplotlib colormap, see MPL docs
         title: String with title of the figure
 
@@ -105,11 +105,11 @@ def plot_qml_landscape_binary(
     plt.show()
 
 
-def plot_lh(wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
+def plot_lh(wrapper: RaccoonWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
     &#34;&#34;&#34;
 
     Args:
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
 
     &#34;&#34;&#34;
     cmap = plt.cm.get_cmap(cmap)
@@ -125,7 +125,7 @@ def plot_lh(wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
 def plot_qml_landscape_multiclass(
     X: np.ndarray,
     y: np.ndarray,
-    wrapper: QMLWrapper,
+    wrapper: RaccoonWrapper,
     subplot_grid: List[int],
     cmap=&#34;viridis&#34;,
     title=&#34;&#34;,
@@ -136,7 +136,7 @@ def plot_qml_landscape_multiclass(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
         subplot_grid: List that specifies the grid of the subplots
         cmap: Name of MPL colormap
         title: Title of the figure
@@ -268,15 +268,15 @@ def plot_qml_landscape_multiclass(
 <section class="desc"><h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>wrapper</code></strong></dt>
-<dd>The QMLWrapper we used for learning</dd>
+<dd>The RaccoonWrapper we used for learning</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def plot_lh(wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
+<pre><code class="python">def plot_lh(wrapper: RaccoonWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
     &#34;&#34;&#34;
 
     Args:
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
 
     &#34;&#34;&#34;
     cmap = plt.cm.get_cmap(cmap)
@@ -301,7 +301,7 @@ def plot_qml_landscape_multiclass(
 <dt><strong><code>y</code></strong></dt>
 <dd>Length N vector with labels.</dd>
 <dt><strong><code>wrapper</code></strong></dt>
-<dd>The QMLWrapper we used for learning</dd>
+<dd>The RaccoonWrapper we used for learning</dd>
 <dt><strong><code>cmap</code></strong></dt>
 <dd>String with name of matplotlib colormap, see MPL docs</dd>
 <dt><strong><code>title</code></strong></dt>
@@ -310,7 +310,7 @@ def plot_qml_landscape_multiclass(
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">def plot_qml_landscape_binary(
-    X: np.ndarray, y: np.ndarray, wrapper: QMLWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
+    X: np.ndarray, y: np.ndarray, wrapper: RaccoonWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
 ):
     &#34;&#34;&#34;
     Plot the separation boundaries in the 2D input space.
@@ -318,7 +318,7 @@ def plot_qml_landscape_multiclass(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
         cmap: String with name of matplotlib colormap, see MPL docs
         title: String with title of the figure
 
@@ -396,7 +396,7 @@ def plot_qml_landscape_multiclass(
 <dt><strong><code>y</code></strong></dt>
 <dd>Length N vector with labels.</dd>
 <dt><strong><code>wrapper</code></strong></dt>
-<dd>The QMLWrapper we used for learning</dd>
+<dd>The RaccoonWrapper we used for learning</dd>
 <dt><strong><code>subplot_grid</code></strong></dt>
 <dd>List that specifies the grid of the subplots</dd>
 <dt><strong><code>cmap</code></strong></dt>
@@ -409,7 +409,7 @@ def plot_qml_landscape_multiclass(
 <pre><code class="python">def plot_qml_landscape_multiclass(
     X: np.ndarray,
     y: np.ndarray,
-    wrapper: QMLWrapper,
+    wrapper: RaccoonWrapper,
     subplot_grid: List[int],
     cmap=&#34;viridis&#34;,
     title=&#34;&#34;,
@@ -420,7 +420,7 @@ def plot_qml_landscape_multiclass(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
         subplot_grid: List that specifies the grid of the subplots
         cmap: Name of MPL colormap
         title: Title of the figure

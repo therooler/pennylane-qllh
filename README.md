@@ -58,7 +58,7 @@ Writing your own `RockyModel` means defining a class that inherits from `RockyMo
 methods defined there. If this is done correctly, `RaccoonWrapper` will do the heavy lifting for us. 
 Below we will discuss the requirements of a `RockyModel` by looking at the individual methods.
 
- 1. RockyModels inherit from keras Models, so that we have a clear template already for what is required
+ 1.) RockyModels inherit from keras Models, so that we have a clear template already for what is required
  for tensorflow to work.
 ```python
 class RockyModel(tf.keras.Model):
@@ -66,6 +66,55 @@ class RockyModel(tf.keras.Model):
     QML model template.
     """
 ```
+ 2.) In order to determine the subsystem that we will measure to construct the density matrix, we need
+ to determine beforehand how many classes we want to learn, `nclasses`. With regards to the `device` parameter,
+ at the moment Rocky Raccoon only supports the `default.qubit` device. In principle we rely only on the 
+ `TFEQnode` Penny Lane interface, but some preliminary tests with the Qiskit backend led to buggy behaviour.
+ The variable `self.req_qub_out` is determined by the number of classes in your implementation, since we need to 
+ construct an appropriately sized density matrix from the circuit. On the other hand, `self.req_qub_in` can be whatever 
+ we want, as long as it is equal to or greater as `self.req_qub_out`. The variables `self.model_dev` and `self.data_dev` 
+ contain the Penny Lane device objects used for executing the quantum and data circuits, which as mentioned before only 
+ supports `default.qubit` for now. `self.circuit` has to be assigned a `TFEQnode` Penny Lane quantum circuit. In order
+ for `RaccoonWrapper` to properly update the gradients, we initalize a list of trainable variables in `self.trainable_vars`.
+ ```python
+ def __init__(self, nclasses: int, device="default.qubit"):
+    """
+    Initialize the keras model interface.
+
+    Args:
+        nclasses: The number of classes in the data, used the determine the required output qubits.
+        device: name of Pennylane Device backend.
+    """
+    super(RockyModel, self).__init__()
+    self.req_qub_out = int(np.ceil(np.log2(nclasses)))
+    self.req_qub_in = None
+    self.device = device
+    self.data_dev = None
+    self.model_dev = None
+    self.nclasses = nclasses
+    self.init = False
+    self.circuit = None
+    self.trainable_vars = []
+```
+3.) Give you model a name.
+```python
+    def __str__(self):
+        return "Gradient Ob-la-descent"
+```
+4.) `initalize` is called in `RaccoonWrapper` before 
+```python
+    def initialize(self, nfeatures: int):
+        """
+        Model initialization.
+
+        Args:
+            nfeatures: The number of features in X
+
+        """
+        self.init = True
+        raise NotImplementedError
+```
+
 # Examples
 
 Explain examples from whitepaper.

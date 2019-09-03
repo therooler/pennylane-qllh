@@ -33,7 +33,7 @@ import tensorflow as tf
 tf.enable_eager_execution()
 
 
-class QMLModel(tf.keras.Model):
+class RockyModel(tf.keras.Model):
     &#34;&#34;&#34;
     QML model template.
     &#34;&#34;&#34;
@@ -46,7 +46,7 @@ class QMLModel(tf.keras.Model):
             nclasses: The number of classes in the data, used the determine the required output qubits.
             device: name of Pennylane Device backend.
         &#34;&#34;&#34;
-        super(QMLModel, self).__init__()
+        super(RockyModel, self).__init__()
         self.req_qub_out = None
         self.req_qub_in = None
         self.device = device
@@ -58,7 +58,7 @@ class QMLModel(tf.keras.Model):
         self.trainable_vars = []
 
     def __str__(self):
-        return &#34;QMLModel&#34;
+        return &#34;RockyModel&#34;
 
     def initialize(self, nfeatures: int):
         &#34;&#34;&#34;
@@ -86,7 +86,7 @@ class QMLModel(tf.keras.Model):
         raise NotImplementedError
 
 
-class QMLWrapper:
+class RaccoonWrapper:
     &#34;&#34;&#34;
     QML model training
     &#34;&#34;&#34;
@@ -101,9 +101,9 @@ class QMLWrapper:
         &#34;id&#34;: tf.constant(np.array([[1, 0], [0, 1]]), dtype=tf.float64),
     }
 
-    def __init__(self, model: QMLModel):
+    def __init__(self, model: RockyModel):
         &#34;&#34;&#34;
-        Wrapper allows one to minimize the quantum log-likelihood for a given QMLModel
+        Wrapper allows one to minimize the quantum log-likelihood for a given RockyModel
 
         Args:
             model: The QML model we want to use for learning
@@ -187,7 +187,7 @@ class QMLWrapper:
         for m in measurements:
             obs = 1
             for ob in m:
-                obs = np.kron(obs, QMLWrapper.measurements[ob])
+                obs = np.kron(obs, RaccoonWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
 
@@ -390,155 +390,13 @@ class QMLWrapper:
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="rockyraccoon.model.core.QMLModel"><code class="flex name class">
-<span>class <span class="ident">QMLModel</span></span>
-<span>(</span><span>nclasses, device='default.qubit')</span>
-</code></dt>
-<dd>
-<section class="desc"><p>QML model template.</p>
-<p>Initialize the keras model interface.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>nclasses</code></strong></dt>
-<dd>The number of classes in the data, used the determine the required output qubits.</dd>
-<dt><strong><code>device</code></strong></dt>
-<dd>name of Pennylane Device backend.</dd>
-</dl></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">class QMLModel(tf.keras.Model):
-    &#34;&#34;&#34;
-    QML model template.
-    &#34;&#34;&#34;
-
-    def __init__(self, nclasses: int, device=&#34;default.qubit&#34;):
-        &#34;&#34;&#34;
-        Initialize the keras model interface.
-
-        Args:
-            nclasses: The number of classes in the data, used the determine the required output qubits.
-            device: name of Pennylane Device backend.
-        &#34;&#34;&#34;
-        super(QMLModel, self).__init__()
-        self.req_qub_out = None
-        self.req_qub_in = None
-        self.device = device
-        self.data_dev = None
-        self.model_dev = None
-        self.nclasses = nclasses
-        self.init = False
-        self.circuit = None
-        self.trainable_vars = []
-
-    def __str__(self):
-        return &#34;QMLModel&#34;
-
-    def initialize(self, nfeatures: int):
-        &#34;&#34;&#34;
-        Model initialization.
-
-        Args:
-            nfeatures: The number of features in X
-
-        &#34;&#34;&#34;
-        self.init = True
-        raise NotImplementedError
-
-    def call(self, inputs, observable):
-        &#34;&#34;&#34;
-        Given some obsersable, we calculate the output of the model.
-
-        Args:
-            inputs: N x d matrix of N samples and d features.
-            observable: Hermitian matrix containing an observable
-
-        Returns: N expectation values of the observable
-
-        &#34;&#34;&#34;
-
-        raise NotImplementedError</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>tensorflow.python.keras.engine.training.Model</li>
-<li>tensorflow.python.keras.engine.network.Network</li>
-<li>tensorflow.python.keras.engine.base_layer.Layer</li>
-<li>tensorflow.python.module.module.Module</li>
-<li>tensorflow.python.training.tracking.tracking.AutoTrackable</li>
-<li>tensorflow.python.training.tracking.base.Trackable</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="rockyraccoon.model.wave_fn.WaveFunction" href="wave_fn.html#rockyraccoon.model.wave_fn.WaveFunction">WaveFunction</a></li>
-<li><a title="rockyraccoon.model.amplitude.AmplitudeModel" href="amplitude.html#rockyraccoon.model.amplitude.AmplitudeModel">AmplitudeModel</a></li>
-<li><a title="rockyraccoon.model.nn_hybrid.HybridNN" href="nn_hybrid.html#rockyraccoon.model.nn_hybrid.HybridNN">HybridNN</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="rockyraccoon.model.core.QMLModel.call"><code class="name flex">
-<span>def <span class="ident">call</span></span>(<span>self, inputs, observable)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Given some obsersable, we calculate the output of the model.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>inputs</code></strong></dt>
-<dd>N x d matrix of N samples and d features.</dd>
-<dt><strong><code>observable</code></strong></dt>
-<dd>Hermitian matrix containing an observable</dd>
-<dt><strong><code>Returns</code></strong> :&ensp;<code>N</code> <code>expectation</code> <code>values</code> of <code>the</code> <code>observable</code></dt>
-<dd>&nbsp;</dd>
-</dl></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def call(self, inputs, observable):
-    &#34;&#34;&#34;
-    Given some obsersable, we calculate the output of the model.
-
-    Args:
-        inputs: N x d matrix of N samples and d features.
-        observable: Hermitian matrix containing an observable
-
-    Returns: N expectation values of the observable
-
-    &#34;&#34;&#34;
-
-    raise NotImplementedError</code></pre>
-</details>
-</dd>
-<dt id="rockyraccoon.model.core.QMLModel.initialize"><code class="name flex">
-<span>def <span class="ident">initialize</span></span>(<span>self, nfeatures)</span>
-</code></dt>
-<dd>
-<section class="desc"><p>Model initialization.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>nfeatures</code></strong></dt>
-<dd>The number of features in X</dd>
-</dl></section>
-<details class="source">
-<summary>Source code</summary>
-<pre><code class="python">def initialize(self, nfeatures: int):
-    &#34;&#34;&#34;
-    Model initialization.
-
-    Args:
-        nfeatures: The number of features in X
-
-    &#34;&#34;&#34;
-    self.init = True
-    raise NotImplementedError</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="rockyraccoon.model.core.QMLWrapper"><code class="flex name class">
-<span>class <span class="ident">QMLWrapper</span></span>
+<dt id="rockyraccoon.model.core.RaccoonWrapper"><code class="flex name class">
+<span>class <span class="ident">RaccoonWrapper</span></span>
 <span>(</span><span>model)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>QML model training</p>
-<p>Wrapper allows one to minimize the quantum log-likelihood for a given QMLModel</p>
+<p>Wrapper allows one to minimize the quantum log-likelihood for a given RockyModel</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>model</code></strong></dt>
@@ -546,7 +404,7 @@ class QMLWrapper:
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">class QMLWrapper:
+<pre><code class="python">class RaccoonWrapper:
     &#34;&#34;&#34;
     QML model training
     &#34;&#34;&#34;
@@ -561,9 +419,9 @@ class QMLWrapper:
         &#34;id&#34;: tf.constant(np.array([[1, 0], [0, 1]]), dtype=tf.float64),
     }
 
-    def __init__(self, model: QMLModel):
+    def __init__(self, model: RockyModel):
         &#34;&#34;&#34;
-        Wrapper allows one to minimize the quantum log-likelihood for a given QMLModel
+        Wrapper allows one to minimize the quantum log-likelihood for a given RockyModel
 
         Args:
             model: The QML model we want to use for learning
@@ -647,7 +505,7 @@ class QMLWrapper:
         for m in measurements:
             obs = 1
             for ob in m:
-                obs = np.kron(obs, QMLWrapper.measurements[ob])
+                obs = np.kron(obs, RaccoonWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
 
@@ -842,14 +700,14 @@ class QMLWrapper:
 </details>
 <h3>Class variables</h3>
 <dl>
-<dt id="rockyraccoon.model.core.QMLWrapper.measurements"><code class="name">var <span class="ident">measurements</span></code></dt>
+<dt id="rockyraccoon.model.core.RaccoonWrapper.measurements"><code class="name">var <span class="ident">measurements</span></code></dt>
 <dd>
 <section class="desc"></section>
 </dd>
 </dl>
 <h3>Static methods</h3>
 <dl>
-<dt id="rockyraccoon.model.core.QMLWrapper.add_bias"><code class="name flex">
+<dt id="rockyraccoon.model.core.RaccoonWrapper.add_bias"><code class="name flex">
 <span>def <span class="ident">add_bias</span></span>(<span>X)</span>
 </code></dt>
 <dd>
@@ -881,7 +739,7 @@ def add_bias(X: np.ndarray) -&gt; np.ndarray:
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="rockyraccoon.model.core.QMLWrapper.construct_density_matrix"><code class="name flex">
+<dt id="rockyraccoon.model.core.RaccoonWrapper.construct_density_matrix"><code class="name flex">
 <span>def <span class="ident">construct_density_matrix</span></span>(<span>self, phi)</span>
 </code></dt>
 <dd>
@@ -930,7 +788,7 @@ def add_bias(X: np.ndarray) -&gt; np.ndarray:
     return eta</code></pre>
 </details>
 </dd>
-<dt id="rockyraccoon.model.core.QMLWrapper.loss"><code class="name flex">
+<dt id="rockyraccoon.model.core.RaccoonWrapper.loss"><code class="name flex">
 <span>def <span class="ident">loss</span></span>(<span>self, inputs, eta)</span>
 </code></dt>
 <dd>
@@ -979,7 +837,7 @@ corresponding data density matrix</p>
     return tf.reduce_mean(lh)</code></pre>
 </details>
 </dd>
-<dt id="rockyraccoon.model.core.QMLWrapper.predict"><code class="name flex">
+<dt id="rockyraccoon.model.core.RaccoonWrapper.predict"><code class="name flex">
 <span>def <span class="ident">predict</span></span>(<span>self, inputs)</span>
 </code></dt>
 <dd>
@@ -1021,7 +879,7 @@ corresponding data density matrix</p>
     ).numpy()</code></pre>
 </details>
 </dd>
-<dt id="rockyraccoon.model.core.QMLWrapper.train"><code class="name flex">
+<dt id="rockyraccoon.model.core.RaccoonWrapper.train"><code class="name flex">
 <span>def <span class="ident">train</span></span>(<span>self, X, y, epsilon=0.1, maxiter=100, tol=0.1)</span>
 </code></dt>
 <dd>
@@ -1106,6 +964,148 @@ corresponding data density matrix</p>
 </dd>
 </dl>
 </dd>
+<dt id="rockyraccoon.model.core.RockyModel"><code class="flex name class">
+<span>class <span class="ident">RockyModel</span></span>
+<span>(</span><span>nclasses, device='default.qubit')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>QML model template.</p>
+<p>Initialize the keras model interface.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>nclasses</code></strong></dt>
+<dd>The number of classes in the data, used the determine the required output qubits.</dd>
+<dt><strong><code>device</code></strong></dt>
+<dd>name of Pennylane Device backend.</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">class RockyModel(tf.keras.Model):
+    &#34;&#34;&#34;
+    QML model template.
+    &#34;&#34;&#34;
+
+    def __init__(self, nclasses: int, device=&#34;default.qubit&#34;):
+        &#34;&#34;&#34;
+        Initialize the keras model interface.
+
+        Args:
+            nclasses: The number of classes in the data, used the determine the required output qubits.
+            device: name of Pennylane Device backend.
+        &#34;&#34;&#34;
+        super(RockyModel, self).__init__()
+        self.req_qub_out = None
+        self.req_qub_in = None
+        self.device = device
+        self.data_dev = None
+        self.model_dev = None
+        self.nclasses = nclasses
+        self.init = False
+        self.circuit = None
+        self.trainable_vars = []
+
+    def __str__(self):
+        return &#34;RockyModel&#34;
+
+    def initialize(self, nfeatures: int):
+        &#34;&#34;&#34;
+        Model initialization.
+
+        Args:
+            nfeatures: The number of features in X
+
+        &#34;&#34;&#34;
+        self.init = True
+        raise NotImplementedError
+
+    def call(self, inputs, observable):
+        &#34;&#34;&#34;
+        Given some obsersable, we calculate the output of the model.
+
+        Args:
+            inputs: N x d matrix of N samples and d features.
+            observable: Hermitian matrix containing an observable
+
+        Returns: N expectation values of the observable
+
+        &#34;&#34;&#34;
+
+        raise NotImplementedError</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>tensorflow.python.keras.engine.training.Model</li>
+<li>tensorflow.python.keras.engine.network.Network</li>
+<li>tensorflow.python.keras.engine.base_layer.Layer</li>
+<li>tensorflow.python.module.module.Module</li>
+<li>tensorflow.python.training.tracking.tracking.AutoTrackable</li>
+<li>tensorflow.python.training.tracking.base.Trackable</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="rockyraccoon.model.wave_fn.WaveFunction" href="wave_fn.html#rockyraccoon.model.wave_fn.WaveFunction">WaveFunction</a></li>
+<li><a title="rockyraccoon.model.amplitude.AmplitudeModel" href="amplitude.html#rockyraccoon.model.amplitude.AmplitudeModel">AmplitudeModel</a></li>
+<li><a title="rockyraccoon.model.nn_hybrid.HybridNN" href="nn_hybrid.html#rockyraccoon.model.nn_hybrid.HybridNN">HybridNN</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="rockyraccoon.model.core.RockyModel.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, inputs, observable)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Given some obsersable, we calculate the output of the model.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>inputs</code></strong></dt>
+<dd>N x d matrix of N samples and d features.</dd>
+<dt><strong><code>observable</code></strong></dt>
+<dd>Hermitian matrix containing an observable</dd>
+<dt><strong><code>Returns</code></strong> :&ensp;<code>N</code> <code>expectation</code> <code>values</code> of <code>the</code> <code>observable</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def call(self, inputs, observable):
+    &#34;&#34;&#34;
+    Given some obsersable, we calculate the output of the model.
+
+    Args:
+        inputs: N x d matrix of N samples and d features.
+        observable: Hermitian matrix containing an observable
+
+    Returns: N expectation values of the observable
+
+    &#34;&#34;&#34;
+
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+<dt id="rockyraccoon.model.core.RockyModel.initialize"><code class="name flex">
+<span>def <span class="ident">initialize</span></span>(<span>self, nfeatures)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Model initialization.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>nfeatures</code></strong></dt>
+<dd>The number of features in X</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def initialize(self, nfeatures: int):
+    &#34;&#34;&#34;
+    Model initialization.
+
+    Args:
+        nfeatures: The number of features in X
+
+    &#34;&#34;&#34;
+    self.init = True
+    raise NotImplementedError</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
 </dl>
 </section>
 </article>
@@ -1123,21 +1123,21 @@ corresponding data density matrix</p>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="rockyraccoon.model.core.QMLModel" href="#rockyraccoon.model.core.QMLModel">QMLModel</a></code></h4>
+<h4><code><a title="rockyraccoon.model.core.RaccoonWrapper" href="#rockyraccoon.model.core.RaccoonWrapper">RaccoonWrapper</a></code></h4>
 <ul class="">
-<li><code><a title="rockyraccoon.model.core.QMLModel.call" href="#rockyraccoon.model.core.QMLModel.call">call</a></code></li>
-<li><code><a title="rockyraccoon.model.core.QMLModel.initialize" href="#rockyraccoon.model.core.QMLModel.initialize">initialize</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RaccoonWrapper.add_bias" href="#rockyraccoon.model.core.RaccoonWrapper.add_bias">add_bias</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RaccoonWrapper.construct_density_matrix" href="#rockyraccoon.model.core.RaccoonWrapper.construct_density_matrix">construct_density_matrix</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RaccoonWrapper.loss" href="#rockyraccoon.model.core.RaccoonWrapper.loss">loss</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RaccoonWrapper.measurements" href="#rockyraccoon.model.core.RaccoonWrapper.measurements">measurements</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RaccoonWrapper.predict" href="#rockyraccoon.model.core.RaccoonWrapper.predict">predict</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RaccoonWrapper.train" href="#rockyraccoon.model.core.RaccoonWrapper.train">train</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="rockyraccoon.model.core.QMLWrapper" href="#rockyraccoon.model.core.QMLWrapper">QMLWrapper</a></code></h4>
+<h4><code><a title="rockyraccoon.model.core.RockyModel" href="#rockyraccoon.model.core.RockyModel">RockyModel</a></code></h4>
 <ul class="">
-<li><code><a title="rockyraccoon.model.core.QMLWrapper.add_bias" href="#rockyraccoon.model.core.QMLWrapper.add_bias">add_bias</a></code></li>
-<li><code><a title="rockyraccoon.model.core.QMLWrapper.construct_density_matrix" href="#rockyraccoon.model.core.QMLWrapper.construct_density_matrix">construct_density_matrix</a></code></li>
-<li><code><a title="rockyraccoon.model.core.QMLWrapper.loss" href="#rockyraccoon.model.core.QMLWrapper.loss">loss</a></code></li>
-<li><code><a title="rockyraccoon.model.core.QMLWrapper.measurements" href="#rockyraccoon.model.core.QMLWrapper.measurements">measurements</a></code></li>
-<li><code><a title="rockyraccoon.model.core.QMLWrapper.predict" href="#rockyraccoon.model.core.QMLWrapper.predict">predict</a></code></li>
-<li><code><a title="rockyraccoon.model.core.QMLWrapper.train" href="#rockyraccoon.model.core.QMLWrapper.train">train</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RockyModel.call" href="#rockyraccoon.model.core.RockyModel.call">call</a></code></li>
+<li><code><a title="rockyraccoon.model.core.RockyModel.initialize" href="#rockyraccoon.model.core.RockyModel.initialize">initialize</a></code></li>
 </ul>
 </li>
 </ul>

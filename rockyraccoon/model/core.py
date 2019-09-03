@@ -23,7 +23,7 @@ class RockyModel(tf.keras.Model):
             device: name of Pennylane Device backend.
         """
         super(RockyModel, self).__init__()
-        self.req_qub_out = None
+        self.req_qub_out = int(np.ceil(np.log2(nclasses)))
         self.req_qub_in = None
         self.device = device
         self.data_dev = None
@@ -34,7 +34,7 @@ class RockyModel(tf.keras.Model):
         self.trainable_vars = []
 
     def __str__(self):
-        return "RockyModel"
+        return "RockyModel Template"
 
     def initialize(self, nfeatures: int):
         """

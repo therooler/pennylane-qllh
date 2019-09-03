@@ -12,8 +12,6 @@ def multiclass_amplitude():
     Test the amplitude QML model for a simple data set with three classes.
 
     """
-    # import tensorflow as tf
-    # tf.enable_eager_execution()
 
     model = AmplitudeModel(nclasses=3, device="default.qubit")
     wrapper = QMLWrapper(model)
@@ -35,7 +33,6 @@ def multiclass_amplitude():
     # Y_3[: int(noise * number_of_copies)] = np.random.randint(
     #     0, 2, (int(noise * number_of_copies), 1)
     # )
-
 
     X = np.vstack((X_1, X_2, X_3, X_4)) + 1
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()

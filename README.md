@@ -67,9 +67,11 @@ class RockyModel(tf.keras.Model):
     QML model template.
     """
 ```
+
  1.) `RockyModel` inherits from keras Models, so that we have a clear template already for what is required
  for tensorflow to work.
- ```python
+
+```python
 def __init__(self, nclasses: int, device="default.qubit"):
     """
     Initialize the keras model interface.
@@ -79,16 +81,17 @@ def __init__(self, nclasses: int, device="default.qubit"):
         device: name of Pennylane Device backend.
     """
     super(RockyModel, self).__init__()
-    self.req_qub_out = int(np.ceil(np.log2(nclasses)))
-    self.req_qub_in = None
-    self.device = device
-    self.data_dev = None
-    self.model_dev = None
-    self.nclasses = nclasses
-    self.init = False
-    self.circuit = None
-    self.trainable_vars = []
+        self.req_qub_out = int(np.ceil(np.log2(nclasses)))
+        self.req_qub_in = None
+        self.device = device
+        self.data_dev = None
+        self.model_dev = None
+        self.nclasses = nclasses
+        self.init = False
+        self.circuit = None
+        self.trainable_vars = []
 ```
+
  2.) In order to determine the subsystem that we will measure to construct the density matrix, we need
  to determine beforehand how many classes we want to learn, `nclasses`. With regards to the `device` parameter,
  at the moment Rocky Raccoon only supports the `default.qubit` device. In principle we rely only on the 
@@ -99,11 +102,14 @@ def __init__(self, nclasses: int, device="default.qubit"):
  contain the Penny Lane device objects used for executing the quantum and data circuits, which as mentioned before only 
  supports `default.qubit` for now. `self.circuit` has to be assigned a `TFEQnode` Penny Lane quantum circuit. In order
  for `RaccoonWrapper` to properly update the gradients, we initalize a list of trainable variables in `self.trainable_vars`.
+
 ```python
-    def __str__(self):
-        return "Gradient Ob-la-descent"
+def __str__(self):
+    return 'Gradient Ob-la-descent'
 ```
-3.) Give you model a name.
+
+ 3.) Give your model a name.
+
 ```python
 def initialize(self, nfeatures: int):
     """
@@ -116,7 +122,8 @@ def initialize(self, nfeatures: int):
     self.init = True
     raise NotImplementedError
 ```
-4.) `initialize` is called in `RaccoonWrapper` before training begins. In this method we need to make sure that our 
+
+ 4.) `initialize` is called in `RaccoonWrapper` before training begins. In this method we need to make sure that our 
 tensorflow variables are initialized and appended to `self.trainable_vars`, that `self.circuit` is assigned a proper `TFEQnode`
 and that `self.init` is set to `True` so that training the model can begin. Since some quantum circuits might want to 
 amplitude encode features from the data into the wavefunction, we need to be aware of `nfeatures`.
@@ -137,7 +144,7 @@ def call(self, inputs: tf.Tensor, observable: tf.Tensor):
     raise NotImplementedError
 ```
 
-5.) Finally, we reach the most important method: `call`. This method is called in the
+ 5.) Finally, we reach the most important method: `call`. This method is called in the
 `RaccoonWrapper` loss function to perform tomography of the model density matrix. Given 
 a tensor of inputs and an observable, it should return the expectation value of the
 given `observable`. To return this value for each sample, it is recommended to use

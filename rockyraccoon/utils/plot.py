@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from resources.model.core import QMLWrapper
+from rockyraccoon.model.core import QMLWrapper
 
 from typing import List
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-black resources
-pdoc3 --force --html -o docs resources
-cp -rf docs/resources/* docs
-rm -rf docs/resources
+black rockyraccoon
+pdoc3 --force --html -o docs rockyraccoon
+cp -rf docs/rockyraccoon/* docs
+rm -rf docs/rockyraccoon

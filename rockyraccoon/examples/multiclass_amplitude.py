@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from resources.model.amplitude import AmplitudeModel
-from resources.model.core import QMLWrapper
-from resources.utils.plot import plot_qml_landscape_multiclass, plot_lh
+from rockyraccoon.model.amplitude import AmplitudeModel
+from rockyraccoon.model.core import QMLWrapper
+from rockyraccoon.utils.plot import plot_qml_landscape_multiclass, plot_lh
 
 
 def multiclass_amplitude():

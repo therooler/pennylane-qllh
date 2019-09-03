@@ -4,7 +4,7 @@ import pennylane as qml
 from pennylane.ops.qubit import QubitStateVector
 from pennylane.interfaces.tfe import TFEQNode
 
-from resources.model.core import QMLModel
+from rockyraccoon.model.core import QMLModel
 
 import tensorflow.contrib.eager as tfe
 import tensorflow as tf

@@ -27,8 +27,24 @@ catchier name for this framework in line with PennyLane and Strawberry Fields (R
 Onion?).</p>
 <p>This project is far from finished, but the most important code is there: The <code>QLModel</code> and <code>QMLWrapper</code> classes are the core of this project and seem to work fine for now.</p>
 <h1 id="installing">Installing</h1>
-<p>Make a conda environment with python 3.7 and install the packages in <code>requirements.txt</code>.
-When I have the time I will package it properly and provide a <code>environment.yml</code> for conda.</p>
+<p>The following works with Conda 4.6.12. Please use the provided environment.yml</p>
+<ol>
+<li>
+<p>Install Conda: <a href="https://www.digitalocean.com/community/tutorials/how-to-install-anaconda-on-ubuntu-18-04-quickstart">Quickstart</a></p>
+</li>
+<li>
+<p>Clone the git</p>
+<p><code>git clone &lt;https://gitlab.com/rooler/pennylane-qllh.git</code>&gt;</p>
+</li>
+<li>
+<p>Create a Virtual Environment</p>
+<p><code>conda env create -f environment.yml</code></p>
+<p>It is good to know that you can use this to update the env:</p>
+<p><code>conda env update -f environment.yml</code></p>
+<p>And removing it can be done with:</p>
+<p><code>conda remove --name pennylane-qllh --all</code></p>
+</li>
+</ol>
 <h1 id="whitepaper">Whitepaper</h1>
 <p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress). The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> (published next month in Physical Review A).</p>
 <h1 id="documentation">Documentation</h1>

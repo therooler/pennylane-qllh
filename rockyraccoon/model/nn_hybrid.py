@@ -4,7 +4,7 @@ import pennylane as qml
 from pennylane.templates.layers import StronglyEntanglingLayers
 from pennylane.interfaces.tfe import TFEQNode
 
-from resources.model.core import QMLModel
+from rockyraccoon.model.core import QMLModel
 
 import tensorflow as tf
 from tensorflow import keras

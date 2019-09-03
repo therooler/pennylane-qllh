@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from resources.model.nn_hybrid import HybridNN
-from resources.model.core import QMLWrapper
-from resources.utils.plot import plot_qml_landscape_multiclass
+from rockyraccoon.model.nn_hybrid import HybridNN
+from rockyraccoon.model.core import QMLWrapper
+from rockyraccoon.utils.plot import plot_qml_landscape_multiclass
 
 
 def multiclass_hybrid_nn():

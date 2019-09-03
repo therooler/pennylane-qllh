@@ -1,22 +1,23 @@
 # Quantum Machine Learning Library for Quantum log-likelihood minimization (QMLQLLM)
 
-A quantum machine learning framework for minimizing the quantum log-likelihood. I am considering a 
-catchier name for this framework in line with PennyLane and Strawberry Fields (Rocky Raccoon? Glass 
-Onion?).
+A quantum machine learning framework for minimizing the quantum log-likelihood. In line with PennyLane, Strawberry Fields and Blackbird
+my working title for this framework is Rocky Raccoon (if you could call it that).
 
 This project is far from finished, but the most important code is there: The `QLModel` and `QMLWrapper` classes are the core of this project and seem to work fine for now.
 
 # Installing
 
-The following works with Conda 4.6.12. Please use the provided environment.yml
+The following works with Conda 4.6.12. Please use the provided environment.yml. 
+If you have a CUDA enabled GPU, consider installing `tensorflow-gpu==1.14.0` instead by 
+changing the `environment.yml` file accordingly.
 
  1. Install Conda: [Quickstart](https://www.digitalocean.com/community/tutorials/how-to-install-anaconda-on-ubuntu-18-04-quickstart)
 
- 2. Clone the git
+ 2. Clone the git:
  
     `git clone https://gitlab.com/rooler/pennylane-qllh.git`
 
- 3. Create a Virtual Environment
+ 3. Create a Virtual Environment:
 
     `conda env create -f environment.yml`
 
@@ -27,10 +28,13 @@ The following works with Conda 4.6.12. Please use the provided environment.yml
     And removing it can be done with:
 
     `conda remove --name pennylane-qllh --all`
+ 4. Install the `pennylane-qllh` package:
 
 # Whitepaper
 
-The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) (work in progress). The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728) (published next month in Physical Review A).
+The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) (work in progress). 
+The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728) and is 
+published in [Physical Review A](http://doi.org/10.1103/PhysRevA.100.020301).
 
 # Documentation
 

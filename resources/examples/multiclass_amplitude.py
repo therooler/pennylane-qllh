@@ -36,6 +36,7 @@ def multiclass_amplitude():
     #     0, 2, (int(noise * number_of_copies), 1)
     # )
 
+
     X = np.vstack((X_1, X_2, X_3, X_4)) + 1
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()
 

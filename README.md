@@ -61,14 +61,15 @@ we will look at some example models that make use of this template. The
 [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) is a good reference to 
 help understand the design choices made here.
 
- 1.) RockyModels inherit from keras Models, so that we have a clear template already for what is required
+ 1.) `RockyModel` inherits from keras Models, so that we have a clear template already for what is required
  for tensorflow to work.
-
+ 
+```python
     class RockyModel(tf.keras.Model):
         """
         QML model template.
         """
-
+```
  2.) In order to determine the subsystem that we will measure to construct the density matrix, we need
  to determine beforehand how many classes we want to learn, `nclasses`. With regards to the `device` parameter,
  at the moment Rocky Raccoon only supports the `default.qubit` device. In principle we rely only on the 

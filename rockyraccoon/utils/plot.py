@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from rockyraccoon.model.core import QMLWrapper
+from rockyraccoon.model.core import RaccoonWrapper
 
 from typing import List
 
 
 def plot_qml_landscape_binary(
-    X: np.ndarray, y: np.ndarray, wrapper: QMLWrapper, cmap="viridis", title=""
+    X: np.ndarray, y: np.ndarray, wrapper: RaccoonWrapper, cmap="viridis", title=""
 ):
     """
     Plot the separation boundaries in the 2D input space.
@@ -15,7 +15,7 @@ def plot_qml_landscape_binary(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
         cmap: String with name of matplotlib colormap, see MPL docs
         title: String with title of the figure
 
@@ -81,11 +81,11 @@ def plot_qml_landscape_binary(
     plt.show()
 
 
-def plot_lh(wrapper: QMLWrapper, cmap="viridis", title=""):
+def plot_lh(wrapper: RaccoonWrapper, cmap="viridis", title=""):
     """
 
     Args:
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
 
     """
     cmap = plt.cm.get_cmap(cmap)
@@ -101,7 +101,7 @@ def plot_lh(wrapper: QMLWrapper, cmap="viridis", title=""):
 def plot_qml_landscape_multiclass(
     X: np.ndarray,
     y: np.ndarray,
-    wrapper: QMLWrapper,
+    wrapper: RaccoonWrapper,
     subplot_grid: List[int],
     cmap="viridis",
     title="",
@@ -112,7 +112,7 @@ def plot_qml_landscape_multiclass(
     Args:
         X: N x d matrix of N samples and d features.
         y: Length N vector with labels.
-        wrapper: The QMLWrapper we used for learning
+        wrapper: The RaccoonWrapper we used for learning
         subplot_grid: List that specifies the grid of the subplots
         cmap: Name of MPL colormap
         title: Title of the figure

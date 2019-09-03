@@ -36,7 +36,7 @@ changing the `environment.yml` file accordingly.
 
  
 
-# Whitepaper
+# Research
 
 The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) (work in progress). 
 The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728) and is 
@@ -50,8 +50,22 @@ with [pdoc3](https://pypi.org/project/pdoc3/). Code is formatted according to PE
 
 # Constructing your own model
 
-Explain `QLModel` and `QMLWrapper`.
+Rocky Raccoon consists of two parts. A `RockyModel` class that serves as a template for the hybrid-quantum model 
+we wish to train, and a `RaccoonWrapper` class that minimizes the quantum log-likelihood. Both these classes 
+can be found in the `model.core` module. 
 
+Writing your own `RockyModel` means defining a class that inherits from `RockyModel` and overloading the 
+methods defined there. If this is done correctly, `RaccoonWrapper` will do the heavy lifting for us. 
+Below we will discuss the requirements of a `RockyModel` by looking at the individual methods.
+
+ 1. RockyModels inherit from keras Models, so that we have a clear template already for what is required
+ for tensorflow to work.
+```python
+class RockyModel(tf.keras.Model):
+    """
+    QML model template.
+    """
+```
 # Examples
 
 Explain examples from whitepaper.

@@ -23,7 +23,7 @@
 <p>Main module of the QML quantum log-likelihood library</p>
 <h1 id="quantum-machine-learning-library-for-quantum-log-likelihood-minimization-qmlqllm">Quantum Machine Learning Library for Quantum log-likelihood minimization (QMLQLLM)</h1>
 <p>A quantum machine learning framework for minimizing the quantum log-likelihood. In line with PennyLane, Strawberry Fields and Blackbird
-my working title for this framework is Rocky Raccoon (if you could call it that).</p>
+my working title for this framework is Rocky Raccoon.</p>
 <p>This project is far from finished, but the most important code is there: The <code>QLModel</code> and <code>QMLWrapper</code> classes are the core of this project and seem to work fine for now.</p>
 <h1 id="installing">Installing</h1>
 <p>The following works with Conda 4.6.12. Please use the provided environment.yml.
@@ -44,7 +44,9 @@ changing the <code>environment.yml</code> file accordingly.</p>
 <p><code>conda env update -f environment.yml</code></p>
 <p>And removing it can be done with:</p>
 <p><code>conda remove --name pennylane-qllh --all</code>
-4. Install the <code>pennylane-qllh</code> package:</p>
+4. Activate the environment and install the <a title="rockyraccoon" href="#rockyraccoon"><code>rockyraccoon</code></a> package:</p>
+<p><code>conda activate pennylane-qllh</code></p>
+<p><code>python setup.py install clean</code></p>
 </li>
 </ol>
 <h1 id="whitepaper">Whitepaper</h1>

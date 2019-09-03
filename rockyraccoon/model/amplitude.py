@@ -4,12 +4,12 @@ import pennylane as qml
 from pennylane.ops.qubit import QubitStateVector
 from pennylane.templates.layers import StronglyEntanglingLayers
 from pennylane.interfaces.tfe import TFEQNode
-from rockyraccoon.model.core import QMLModel
+from rockyraccoon.model.core import RockyModel
 import tensorflow.contrib.eager as tfe
 import tensorflow as tf
 
 
-class AmplitudeModel(QMLModel):
+class AmplitudeModel(RockyModel):
     """
     QML model that only amplitude encoding.
     """

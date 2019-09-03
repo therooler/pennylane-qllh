@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from rockyraccoon.model.nn_hybrid import HybridNN
-from rockyraccoon.model.core import QMLWrapper
+from rockyraccoon.model.core import RaccoonWrapper
 from rockyraccoon.utils.plot import plot_qml_landscape_multiclass
 
 
@@ -16,7 +16,7 @@ def multiclass_hybrid_nn():
     # tf.enable_eager_execution()
 
     model = HybridNN(nclasses=3, device="default.qubit")
-    wrapper = QMLWrapper(model)
+    wrapper = RaccoonWrapper(model)
 
     number_of_copies = 3
     # PERFECT PROBLEM

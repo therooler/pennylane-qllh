@@ -4,7 +4,7 @@ import pennylane as qml
 from pennylane.templates.layers import StronglyEntanglingLayers
 from pennylane.interfaces.tfe import TFEQNode
 
-from rockyraccoon.model.core import QMLModel
+from rockyraccoon.model.core import RockyModel
 
 import tensorflow as tf
 from tensorflow import keras
@@ -12,7 +12,7 @@ from tensorflow import keras
 tf.enable_eager_execution()
 
 
-class HybridNN(QMLModel):
+class HybridNN(RockyModel):
     """
     QML model that uses a neural network to learn quantum circuit parameters.
     """

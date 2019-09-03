@@ -4,7 +4,7 @@ import pennylane as qml
 from pennylane.ops.qubit import QubitStateVector
 from pennylane.interfaces.tfe import TFEQNode
 
-from rockyraccoon.model.core import QMLModel
+from rockyraccoon.model.core import RockyModel
 
 import tensorflow.contrib.eager as tfe
 import tensorflow as tf
@@ -12,7 +12,7 @@ import tensorflow as tf
 tf.enable_eager_execution()
 
 
-class WaveFunction(QMLModel):
+class WaveFunction(RockyModel):
     """
     QML model which encodes a wave function and learns a parameterized quantum circuit.
     """

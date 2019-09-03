@@ -1,5 +1,5 @@
 from rockyraccoon.model.wave_fn import WaveFunction
-from rockyraccoon.model.core import QMLWrapper
+from rockyraccoon.model.core import RaccoonWrapper
 from rockyraccoon.utils.plot import plot_qml_landscape_multiclass
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +14,7 @@ def multiclass_wave_fn():
     # tf.enable_eager_execution()
 
     model = WaveFunction(nclasses=3, device="default.qubit")
-    wrapper = QMLWrapper(model)
+    wrapper = RaccoonWrapper(model)
 
     number_of_copies = 3
     # PERFECT PROBLEM

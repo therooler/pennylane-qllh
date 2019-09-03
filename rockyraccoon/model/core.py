@@ -9,7 +9,7 @@ import tensorflow as tf
 tf.enable_eager_execution()
 
 
-class QMLModel(tf.keras.Model):
+class RockyModel(tf.keras.Model):
     """
     QML model template.
     """
@@ -22,7 +22,7 @@ class QMLModel(tf.keras.Model):
             nclasses: The number of classes in the data, used the determine the required output qubits.
             device: name of Pennylane Device backend.
         """
-        super(QMLModel, self).__init__()
+        super(RockyModel, self).__init__()
         self.req_qub_out = None
         self.req_qub_in = None
         self.device = device
@@ -34,7 +34,7 @@ class QMLModel(tf.keras.Model):
         self.trainable_vars = []
 
     def __str__(self):
-        return "QMLModel"
+        return "RockyModel"
 
     def initialize(self, nfeatures: int):
         """
@@ -62,7 +62,7 @@ class QMLModel(tf.keras.Model):
         raise NotImplementedError
 
 
-class QMLWrapper:
+class RaccoonWrapper:
     """
     QML model training
     """
@@ -77,9 +77,9 @@ class QMLWrapper:
         "id": tf.constant(np.array([[1, 0], [0, 1]]), dtype=tf.float64),
     }
 
-    def __init__(self, model: QMLModel):
+    def __init__(self, model: RockyModel):
         """
-        Wrapper allows one to minimize the quantum log-likelihood for a given QMLModel
+        Wrapper allows one to minimize the quantum log-likelihood for a given RockyModel
 
         Args:
             model: The QML model we want to use for learning
@@ -163,7 +163,7 @@ class QMLWrapper:
         for m in measurements:
             obs = 1
             for ob in m:
-                obs = np.kron(obs, QMLWrapper.measurements[ob])
+                obs = np.kron(obs, RaccoonWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
 

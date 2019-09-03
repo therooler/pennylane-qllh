@@ -68,12 +68,12 @@ Below we will discuss the requirements of a <code>RockyModel</code> by looking a
 we will look at some example models that make use of this template. The
 <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> is a good reference to
 help understand the design choices made here.</p>
-<p>1.) RockyModels inherit from keras Models, so that we have a clear template already for what is required
+<p>1.) <code>RockyModel</code> inherits from keras Models, so that we have a clear template already for what is required
 for tensorflow to work.</p>
-<pre><code>class RockyModel(tf.keras.Model):
-    """
-    QML model template.
-    """
+<pre><code class="python">    class RockyModel(tf.keras.Model):
+        &quot;&quot;&quot;
+        QML model template.
+        &quot;&quot;&quot;
 </code></pre>
 <p>2.) In order to determine the subsystem that we will measure to construct the density matrix, we need
 to determine beforehand how many classes we want to learn, <code>nclasses</code>. With regards to the <code>device</code> parameter,

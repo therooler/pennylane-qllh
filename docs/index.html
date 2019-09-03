@@ -64,14 +64,58 @@ can be found in the <a title="rockyraccoon.model.core" href="model/core.html"><c
 <p>Writing your own <code>RockyModel</code> means defining a class that inherits from <code>RockyModel</code> and overloading the
 methods defined there. If this is done correctly, <code>RaccoonWrapper</code> will do the heavy lifting for us.
 Below we will discuss the requirements of a <code>RockyModel</code> by looking at the individual methods.</p>
-<ol>
-<li>RockyModels inherit from keras Models, so that we have a clear template already for what is required
-for tensorflow to work.</li>
-</ol>
+<p>1.) RockyModels inherit from keras Models, so that we have a clear template already for what is required
+for tensorflow to work.</p>
 <pre><code class="python">class RockyModel(tf.keras.Model):
     &quot;&quot;&quot;
     QML model template.
     &quot;&quot;&quot;
+</code></pre>
+<p>2.) In order to determine the subsystem that we will measure to construct the density matrix, we need
+to determine beforehand how many classes we want to learn, <code>nclasses</code>. With regards to the <code>device</code> parameter,
+at the moment Rocky Raccoon only supports the <code>default.qubit</code> device. In principle we rely only on the
+<code>TFEQnode</code> Penny Lane interface, but some preliminary tests with the Qiskit backend led to buggy behaviour.
+The variable <code>self.req_qub_out</code> is determined by the number of classes in your implementation, since we need to
+construct an appropriately sized density matrix from the circuit. On the other hand, <code>self.req_qub_in</code> can be whatever
+we want, as long as it is equal to or greater as <code>self.req_qub_out</code>. The variables <code>self.model_dev</code> and <code>self.data_dev</code>
+contain the Penny Lane device objects used for executing the quantum and data circuits, which as mentioned before only
+supports <code>default.qubit</code> for now. <code>self.circuit</code> has to be assigned a <code>TFEQnode</code> Penny Lane quantum circuit. In order
+for <code>RaccoonWrapper</code> to properly update the gradients, we initalize a list of trainable variables in <code>self.trainable_vars</code>.
+```python
+def <strong>init</strong>(self, nclasses: int, device="default.qubit"):
+"""
+Initialize the keras model interface.</p>
+<pre><code>Args:
+    nclasses: The number of classes in the data, used the determine the required output qubits.
+    device: name of Pennylane Device backend.
+"""
+super(RockyModel, self).__init__()
+self.req_qub_out = int(np.ceil(np.log2(nclasses)))
+self.req_qub_in = None
+self.device = device
+self.data_dev = None
+self.model_dev = None
+self.nclasses = nclasses
+self.init = False
+self.circuit = None
+self.trainable_vars = []
+</code></pre>
+<pre><code>3.) Give you model a name.
+```python
+    def __str__(self):
+        return &quot;Gradient Ob-la-descent&quot;
+</code></pre>
+<p>4.) <code>initalize</code> is called in <code>RaccoonWrapper</code> before </p>
+<pre><code class="python">    def initialize(self, nfeatures: int):
+        &quot;&quot;&quot;
+        Model initialization.
+
+        Args:
+            nfeatures: The number of features in X
+
+        &quot;&quot;&quot;
+        self.init = True
+        raise NotImplementedError
 </code></pre>
 <h1 id="examples">Examples</h1>
 <p>Explain examples from whitepaper.</p>

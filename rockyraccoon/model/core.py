@@ -47,13 +47,13 @@ class RockyModel(tf.keras.Model):
         self.init = True
         raise NotImplementedError
 
-    def call(self, inputs, observable):
+    def call(self, inputs: tf.Tensor, observable: tf.Tensor):
         """
         Given some obsersable, we calculate the output of the model.
 
         Args:
-            inputs: N x d matrix of N samples and d features.
-            observable: Hermitian matrix containing an observable
+            inputs: N x d tf.Tensor of N samples and d features.
+            observable: tf.Tensor with Hermitian matrix containing an observable
 
         Returns: N expectation values of the observable
 
@@ -166,6 +166,7 @@ class RaccoonWrapper:
                 obs = np.kron(obs, RaccoonWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
+        print(self.req_measurements)
 
     def construct_density_matrix(self, phi: np.ndarray) -> np.ndarray:
         """

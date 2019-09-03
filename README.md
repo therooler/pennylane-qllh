@@ -56,7 +56,10 @@ can be found in the `model.core` module.
 
 Writing your own `RockyModel` means defining a class that inherits from `RockyModel` and overloading the 
 methods defined there. If this is done correctly, `RaccoonWrapper` will do the heavy lifting for us. 
-Below we will discuss the requirements of a `RockyModel` by looking at the individual methods.
+Below we will discuss the requirements of a `RockyModel` by looking at the individual methods. In the section after that
+we will look at some example models that make use of this template. The 
+[whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) is a good reference to 
+help understand the design choices made here.
 
  1.) RockyModels inherit from keras Models, so that we have a clear template already for what is required
  for tensorflow to work.
@@ -77,7 +80,7 @@ class RockyModel(tf.keras.Model):
  supports `default.qubit` for now. `self.circuit` has to be assigned a `TFEQnode` Penny Lane quantum circuit. In order
  for `RaccoonWrapper` to properly update the gradients, we initalize a list of trainable variables in `self.trainable_vars`.
  ```python
- def __init__(self, nclasses: int, device="default.qubit"):
+def __init__(self, nclasses: int, device="default.qubit"):
     """
     Initialize the keras model interface.
 
@@ -101,20 +104,48 @@ class RockyModel(tf.keras.Model):
     def __str__(self):
         return "Gradient Ob-la-descent"
 ```
-4.) `initalize` is called in `RaccoonWrapper` before 
+4.) `initialize` is called in `RaccoonWrapper` before training begins. In this method we need to make sure that our 
+tensorflow variables are initialized and appended to `self.trainable_vars`, that `self.circuit` is assigned a proper `TFEQnode`
+and that `self.init` is set to `True` so that training the model can begin. Since some quantum circuits might want to 
+amplitude encode features from the data into the wavefunction, we need to be aware of `nfeatures`.
 ```python
-    def initialize(self, nfeatures: int):
-        """
-        Model initialization.
+def initialize(self, nfeatures: int):
+    """
+    Model initialization.
 
-        Args:
-            nfeatures: The number of features in X
+    Args:
+        nfeatures: The number of features in X
 
-        """
-        self.init = True
-        raise NotImplementedError
+    """
+    self.init = True
+    raise NotImplementedError
+
 ```
+5.) Finally, we reach the most important method: `call`. This method is called in the
+`RaccoonWrapper` loss function to perform tomography of the model density matrix. Given 
+a tensor of inputs and an observable, it should return the expectation value of the
+given `observable`. To return this value for each sample, it is recommended to use
+ `tf.map_fn`, which performs a parallel map over the batch dimension. 
 
+**Note:** Unfotunately, `tf.map_fn` cannot be run in parallel since the Penny Lane 
+`TFQENode` casts the tensors to arrays in order work with all device backends. This
+means that `tf.map_fn` is simply a fancy wrapper of a for-loop. 
+
+```python
+def call(self, inputs: tf.Tensor, observable: tf.Tensor):
+    """
+    Given some obsersable, we calculate the output of the model.
+
+    Args:
+        inputs: N x d tf.Tensor of N samples and d features.
+        observable: tf.Tensor with Hermitian matrix containing an observable
+
+    Returns: N expectation values of the observable
+
+    """
+
+    raise NotImplementedError
+```
 # Examples
 
 Explain examples from whitepaper.

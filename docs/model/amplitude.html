@@ -275,6 +275,59 @@ class AmplitudeModel(RockyModel):
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="rockyraccoon.model.amplitude.AmplitudeModel.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, inputs, observable)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Given some obsersable, we calculate the output of the model.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>inputs</code></strong></dt>
+<dd>N x d matrix of N samples and d features.</dd>
+<dt><strong><code>observable</code></strong></dt>
+<dd>Hermitian matrix containing an observable</dd>
+<dt><strong><code>Returns</code></strong> :&ensp;<code>N</code> <code>expectation</code> <code>values</code> of <code>the</code> <code>observable</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def call(self, inputs, observable):
+    &#34;&#34;&#34;
+    Given some obsersable, we calculate the output of the model.
+
+    Args:
+        inputs: N x d matrix of N samples and d features.
+        observable: Hermitian matrix containing an observable
+
+    Returns: N expectation values of the observable
+
+    &#34;&#34;&#34;
+    # encode the features into a normed wavefunctions
+    phi = inputs @ self.w
+    phi = phi / tf.reshape(
+        tf.sqrt(tf.reduce_sum(tf.math.abs(phi) ** 2, axis=1)), (-1, 1)
+    )
+    # make sure that the wavefunction is of length 2^n
+    if phi.shape[1] &lt; 2 ** self.req_qub_in:
+        phi = tf.concat(
+            (
+                phi,
+                tf.zeros(
+                    (phi.shape[0], 2 ** self.req_qub_in - phi.shape[1]),
+                    dtype=tf.float64,
+                ),
+            ),
+            axis=1,
+        )
+    # strange bug with tensors not mapping correctly, unless we do this.
+    w = self.w_circuit[:, tf.newaxis]
+    return tf.map_fn(
+        lambda x: self.circuit(w[0], state=x, obs=observable),
+        elems=phi,
+        dtype=tf.float64,
+    )</code></pre>
+</details>
+</dd>
 <dt id="rockyraccoon.model.amplitude.AmplitudeModel.initialize"><code class="name flex">
 <span>def <span class="ident">initialize</span></span>(<span>self, nfeatures)</span>
 </code></dt>
@@ -334,14 +387,6 @@ class AmplitudeModel(RockyModel):
 </details>
 </dd>
 </dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="rockyraccoon.model.core.RockyModel" href="core.html#rockyraccoon.model.core.RockyModel">RockyModel</a></b></code>:
-<ul class="hlist">
-<li><code><a title="rockyraccoon.model.core.RockyModel.call" href="core.html#rockyraccoon.model.core.RockyModel.call">call</a></code></li>
-</ul>
-</li>
-</ul>
 </dd>
 </dl>
 </section>
@@ -362,6 +407,7 @@ class AmplitudeModel(RockyModel):
 <li>
 <h4><code><a title="rockyraccoon.model.amplitude.AmplitudeModel" href="#rockyraccoon.model.amplitude.AmplitudeModel">AmplitudeModel</a></code></h4>
 <ul class="">
+<li><code><a title="rockyraccoon.model.amplitude.AmplitudeModel.call" href="#rockyraccoon.model.amplitude.AmplitudeModel.call">call</a></code></li>
 <li><code><a title="rockyraccoon.model.amplitude.AmplitudeModel.initialize" href="#rockyraccoon.model.amplitude.AmplitudeModel.initialize">initialize</a></code></li>
 </ul>
 </li>

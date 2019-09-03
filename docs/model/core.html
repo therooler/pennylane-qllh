@@ -71,13 +71,13 @@ class RockyModel(tf.keras.Model):
         self.init = True
         raise NotImplementedError
 
-    def call(self, inputs, observable):
+    def call(self, inputs: tf.Tensor, observable: tf.Tensor):
         &#34;&#34;&#34;
         Given some obsersable, we calculate the output of the model.
 
         Args:
-            inputs: N x d matrix of N samples and d features.
-            observable: Hermitian matrix containing an observable
+            inputs: N x d tf.Tensor of N samples and d features.
+            observable: tf.Tensor with Hermitian matrix containing an observable
 
         Returns: N expectation values of the observable
 
@@ -190,6 +190,7 @@ class RaccoonWrapper:
                 obs = np.kron(obs, RaccoonWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
+        print(self.req_measurements)
 
     def construct_density_matrix(self, phi: np.ndarray) -&gt; np.ndarray:
         &#34;&#34;&#34;
@@ -508,6 +509,7 @@ class RaccoonWrapper:
                 obs = np.kron(obs, RaccoonWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
+        print(self.req_measurements)
 
     def construct_density_matrix(self, phi: np.ndarray) -&gt; np.ndarray:
         &#34;&#34;&#34;
@@ -1018,13 +1020,13 @@ corresponding data density matrix</p>
         self.init = True
         raise NotImplementedError
 
-    def call(self, inputs, observable):
+    def call(self, inputs: tf.Tensor, observable: tf.Tensor):
         &#34;&#34;&#34;
         Given some obsersable, we calculate the output of the model.
 
         Args:
-            inputs: N x d matrix of N samples and d features.
-            observable: Hermitian matrix containing an observable
+            inputs: N x d tf.Tensor of N samples and d features.
+            observable: tf.Tensor with Hermitian matrix containing an observable
 
         Returns: N expectation values of the observable
 
@@ -1057,21 +1059,21 @@ corresponding data density matrix</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>inputs</code></strong></dt>
-<dd>N x d matrix of N samples and d features.</dd>
+<dd>N x d tf.Tensor of N samples and d features.</dd>
 <dt><strong><code>observable</code></strong></dt>
-<dd>Hermitian matrix containing an observable</dd>
+<dd>tf.Tensor with Hermitian matrix containing an observable</dd>
 <dt><strong><code>Returns</code></strong> :&ensp;<code>N</code> <code>expectation</code> <code>values</code> of <code>the</code> <code>observable</code></dt>
 <dd>&nbsp;</dd>
 </dl></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def call(self, inputs, observable):
+<pre><code class="python">def call(self, inputs: tf.Tensor, observable: tf.Tensor):
     &#34;&#34;&#34;
     Given some obsersable, we calculate the output of the model.
 
     Args:
-        inputs: N x d matrix of N samples and d features.
-        observable: Hermitian matrix containing an observable
+        inputs: N x d tf.Tensor of N samples and d features.
+        observable: tf.Tensor with Hermitian matrix containing an observable
 
     Returns: N expectation values of the observable
 

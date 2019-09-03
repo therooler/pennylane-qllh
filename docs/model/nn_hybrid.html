@@ -50,7 +50,6 @@ class HybridNN(RockyModel):
             device: name of Pennylane Device backend.
         &#34;&#34;&#34;
         super(HybridNN, self).__init__(nclasses, device)
-        self.req_qub_in = self.req_qub_out
         self.data_dev = qml.device(device, wires=self.req_qub_out)
         self.device = device
         self.model_dev = None
@@ -159,7 +158,6 @@ class HybridNN(RockyModel):
             device: name of Pennylane Device backend.
         &#34;&#34;&#34;
         super(HybridNN, self).__init__(nclasses, device)
-        self.req_qub_in = self.req_qub_out
         self.data_dev = qml.device(device, wires=self.req_qub_out)
         self.device = device
         self.model_dev = None
@@ -238,11 +236,51 @@ class HybridNN(RockyModel):
 <li>tensorflow.python.training.tracking.tracking.AutoTrackable</li>
 <li>tensorflow.python.training.tracking.base.Trackable</li>
 </ul>
+<h3>Methods</h3>
+<dl>
+<dt id="rockyraccoon.model.nn_hybrid.HybridNN.call"><code class="name flex">
+<span>def <span class="ident">call</span></span>(<span>self, inputs, observable)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Given some obsersable, we calculate the output of the model.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>inputs</code></strong></dt>
+<dd>N x d matrix of N samples and d features.</dd>
+<dt><strong><code>observable</code></strong></dt>
+<dd>Hermitian matrix containing an observable</dd>
+<dt><strong><code>Returns</code></strong> :&ensp;<code>N</code> <code>expectation</code> <code>values</code> of <code>the</code> <code>observable</code></dt>
+<dd>&nbsp;</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def call(self, inputs, observable):
+    &#34;&#34;&#34;
+    Given some obsersable, we calculate the output of the model.
+
+    Args:
+        inputs: N x d matrix of N samples and d features.
+        observable: Hermitian matrix containing an observable
+
+    Returns: N expectation values of the observable
+
+    &#34;&#34;&#34;
+    # calculate te neural network output (0,1)
+    nn_out = self.nn(inputs)
+    # scale to (-2pi, 2pi
+    theta = 2 * np.pi * nn_out
+    # pass these as parameters to the circuit.
+    theta = tf.reshape(theta, (-1, 1, self.req_qub_in, 3))
+    return tf.map_fn(
+        lambda x: self.circuit(x, obs=observable), elems=theta, dtype=tf.float64
+    )</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="rockyraccoon.model.core.RockyModel" href="core.html#rockyraccoon.model.core.RockyModel">RockyModel</a></b></code>:
 <ul class="hlist">
-<li><code><a title="rockyraccoon.model.core.RockyModel.call" href="core.html#rockyraccoon.model.core.RockyModel.call">call</a></code></li>
 <li><code><a title="rockyraccoon.model.core.RockyModel.initialize" href="core.html#rockyraccoon.model.core.RockyModel.initialize">initialize</a></code></li>
 </ul>
 </li>
@@ -266,6 +304,9 @@ class HybridNN(RockyModel):
 <ul>
 <li>
 <h4><code><a title="rockyraccoon.model.nn_hybrid.HybridNN" href="#rockyraccoon.model.nn_hybrid.HybridNN">HybridNN</a></code></h4>
+<ul class="">
+<li><code><a title="rockyraccoon.model.nn_hybrid.HybridNN.call" href="#rockyraccoon.model.nn_hybrid.HybridNN.call">call</a></code></li>
+</ul>
 </li>
 </ul>
 </li>

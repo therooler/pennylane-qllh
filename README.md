@@ -1,4 +1,4 @@
-![](docs/resources/RR_raccoon_wiersema.png)
+![](docs/resources/RR_raccoon_wiersema.jpg)
 
 # Penny Lane and the Quantum Log-Likelihood
 

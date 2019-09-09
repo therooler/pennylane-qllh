@@ -1,3 +1,5 @@
+![](docs/resources/RR_raccoon_wiersema.png)
+
 # Penny Lane and the Quantum Log-Likelihood
 
 A quantum machine learning framework for minimizing the quantum log-likelihood. In line with Penny Lane, 

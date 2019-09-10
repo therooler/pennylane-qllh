@@ -166,7 +166,6 @@ class RaccoonWrapper:
                 obs = np.kron(obs, RaccoonWrapper.measurements[ob])
             self.req_measurements.append(obs)
         self.req_measurements = tf.constant(self.req_measurements, dtype=tf.float64)
-        print(self.req_measurements)
 
     def construct_density_matrix(self, phi: np.ndarray) -> np.ndarray:
         """

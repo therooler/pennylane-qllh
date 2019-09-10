@@ -58,7 +58,7 @@ class AmplitudeModel(RockyModel):
         )
         # parameters for the StronglyEntanglingLayers circuit
         self.w_circuit = tfe.Variable(
-            0.1 * (np.random.rand(1 ,nparams, 3, nfeatures) - 0.5),
+            0.1 * (np.random.rand(1, nparams, 3, nfeatures) - 0.5),
             name="weights",
             dtype=tf.float64,
         )
@@ -87,7 +87,7 @@ class AmplitudeModel(RockyModel):
 
         """
         # encode the features into a normed wavefunctions
-        phi = inputs # @ self.w
+        phi = inputs  # @ self.w
         phi = phi / tf.reshape(
             tf.sqrt(tf.reduce_sum(tf.math.abs(phi) ** 2, axis=1)), (-1, 1)
         )
@@ -104,9 +104,9 @@ class AmplitudeModel(RockyModel):
                 axis=1,
             )
         # use einsum to do the tensorproduct correctly
-        w = tf.einsum('nm,ijkm->nijk',inputs, self.w_circuit)
+        w = tf.einsum("nm,ijkm->nijk", inputs, self.w_circuit)
         return tf.map_fn(
             lambda x: self.circuit(x[0], state=x[1], obs=observable),
             elems=(w, phi),
-            dtype=tf.float64
+            dtype=tf.float64,
         )

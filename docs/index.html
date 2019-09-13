@@ -147,8 +147,13 @@ given <code>observable</code>. To return this value for each sample, it is recom
 means that <code>tf.map_fn</code> is simply a fancy wrapper of a for-loop. </p>
 <h1 id="examples">Examples</h1>
 <p>One example discussed in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a>
-is a quantum circuit, whose parameters are controlled by a dense neural network.</p>
+is a quantum circuit, whose parameters are controlled by a dense neural network. Schematically this
+looks as follows:</p>
 <p><img alt="Hybrid Quantum Circuit" src="/docs/resources/model_3.png"></p>
+<p><em>Data is encoded in the parameters of the circuit (theta) by a dense neural network. Using a
+PennyLane</em> <code>StronglyEntanglingLayer</code> we entangle the zero state based on these parameters. <em>By performing
+quantum state tomography, we obtain the data and model density matrix. Then, we calculate the
+quantum log-likelihood and the corresponding gradients.</em></p>
 <h1 id="future-work">Future Work</h1>
 <p>Parallelize everything.</p>
 <details class="source">

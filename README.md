@@ -171,4 +171,4 @@ quantum log-likelihood and the corresponding gradients.*
 
 # Future Work
 
-Parallelize everything.
+Improve concurrency.

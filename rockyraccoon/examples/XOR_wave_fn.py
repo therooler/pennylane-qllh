@@ -6,7 +6,7 @@ from rockyraccoon.model.core import RaccoonWrapper
 from rockyraccoon.utils.plot import plot_qml_landscape_binary, plot_lh
 
 
-def multiclass_amplitude():
+def XOR_wave_fn():
     """
 
     Test the amplitude QML model for a simple data set with three classes.
@@ -37,11 +37,11 @@ def multiclass_amplitude():
     X = np.vstack((X_1, X_2, X_3, X_4)) + 1
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()
 
-    wrapper.train(X, y, maxiter=800, epsilon=0.1, tol=1e-6)
+    wrapper.train(X, y, maxiter=1500, epsilon=0.1, tol=1e-6)
     plot_qml_landscape_binary(X, y, wrapper)
     plot_lh(wrapper)
 
 
 if __name__ == "__main__":
 
-    multiclass_amplitude()
+    XOR_wave_fn()

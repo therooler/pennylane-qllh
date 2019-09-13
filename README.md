@@ -158,7 +158,10 @@ means that `tf.map_fn` is simply a fancy wrapper of a for-loop.
 
 # Examples
 
-Explain examples from whitepaper.
+One example discussed in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf)
+is a quantum circuit, whose parameters are controlled by a dense neural network.
+
+![Hybrid Quantum Circuit](/docs/resources/model_3.png)
 
 # Future Work
 

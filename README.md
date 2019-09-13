@@ -159,9 +159,15 @@ means that `tf.map_fn` is simply a fancy wrapper of a for-loop.
 # Examples
 
 One example discussed in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf)
-is a quantum circuit, whose parameters are controlled by a dense neural network.
+is a quantum circuit, whose parameters are controlled by a dense neural network. Schematically this
+looks as follows:
 
 ![Hybrid Quantum Circuit](/docs/resources/model_3.png)
+
+*Data is encoded in the parameters of the circuit (theta) by a dense neural network. Using a
+PennyLane* `StronglyEntanglingLayer` we entangle the zero state based on these parameters. *By performing
+quantum state tomography, we obtain the data and model density matrix. Then, we calculate the
+quantum log-likelihood and the corresponding gradients.*
 
 # Future Work
 

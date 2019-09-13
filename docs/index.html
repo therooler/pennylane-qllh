@@ -146,7 +146,9 @@ given <code>observable</code>. To return this value for each sample, it is recom
 <code>TFQENode</code> casts the tensors to arrays in order work with all device backends. This
 means that <code>tf.map_fn</code> is simply a fancy wrapper of a for-loop. </p>
 <h1 id="examples">Examples</h1>
-<p>Explain examples from whitepaper.</p>
+<p>One example discussed in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a>
+is a quantum circuit, whose parameters are controlled by a dense neural network.</p>
+<p><img alt="Hybrid Quantum Circuit" src="/docs/resources/model_3.png"></p>
 <h1 id="future-work">Future Work</h1>
 <p>Parallelize everything.</p>
 <details class="source">

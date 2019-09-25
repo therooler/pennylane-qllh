@@ -1,9 +1,10 @@
 
+# Rocky Raccoon
+#### *Penny Lane and the Quantum Log-Likelihood*
 
-# Penny Lane and the Quantum Log-Likelihood
-
-The code in this repository is a quantum machine learning framework for minimizing the quantum log-likelihood. In line with Penny Lane, 
-Strawberry Fields and Blackbird, the working title for this framework is Rocky Raccoon.
+Rocky Raccoon is meant as a framework that makes it easy to develop variational quantum circuits that
+make use of the quantum log-likelihood. In line with Penny Lane, Strawberry Fields and Blackbird, the working title for
+ this framework is Rocky Raccoon.
 
 The core idea of this project can be summarized as follows: As opposed to learning a classical model probability density, 
 
@@ -27,10 +28,6 @@ label for some sample from the data.
 On the other hand, ![](docs/resources/rho.png) is our model density matrix, represented by a variational quantum circuit. 
 To construct this variational quantum circuit, we use PennyLane. In order to estimate te density matrix
 of this circuit, we employ the technique of quantum state tomography.
-
-Rocky Raccoon is meant as a framework that makes it easy to develop variational quantum circuits that
-make use of the quantum log-likelihood.
-
 
 The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) (work in progress). 
 The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728) and is 

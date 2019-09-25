@@ -21,9 +21,11 @@
 </header>
 <section id="section-intro">
 <p>Main module of the QML quantum log-likelihood library</p>
-<h1 id="penny-lane-and-the-quantum-log-likelihood">Penny Lane and the Quantum Log-Likelihood</h1>
-<p>A quantum machine learning framework for minimizing the quantum log-likelihood. In line with Penny Lane,
-Strawberry Fields and Blackbird, the working title for this framework is Rocky Raccoon.</p>
+<h1 id="rocky-raccoon">Rocky Raccoon</h1>
+<h4 id="penny-lane-and-the-quantum-log-likelihood"><em>Penny Lane and the Quantum Log-Likelihood</em></h4>
+<p>Rocky Raccoon is meant as a framework that makes it easy to develop variational quantum circuits that
+make use of the quantum log-likelihood. In line with Penny Lane, Strawberry Fields and Blackbird, the working title for
+this framework is Rocky Raccoon.</p>
 <p>The core idea of this project can be summarized as follows: As opposed to learning a classical model probability density, </p>
 <p><img alt="" src="docs/resources/cllh.png"></p>
 <p>we learn a parametrized density matrix instead, given by</p>
@@ -37,8 +39,6 @@ label for some sample from the data.</p>
 <p>On the other hand, <img alt="" src="docs/resources/rho.png"> is our model density matrix, represented by a variational quantum circuit.
 To construct this variational quantum circuit, we use PennyLane. In order to estimate te density matrix
 of this circuit, we employ the technique of quantum state tomography.</p>
-<p>Rocky Raccoon is meant as a framework that makes it easy to develop variational quantum circuits that
-make use of the quantum log-likelihood.</p>
 <p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress).
 The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> and is
 published in <a href="http://doi.org/10.1103/PhysRevA.100.020301">Physical Review A</a>.</p>
@@ -206,7 +206,10 @@ quantum log-likelihood and the corresponding gradients.</em></p>
 <h1>Index</h1>
 <div class="toc">
 <ul>
+<li><a href="#rocky-raccoon">Rocky Raccoon</a><ul>
 <li><a href="#penny-lane-and-the-quantum-log-likelihood">Penny Lane and the Quantum Log-Likelihood</a></li>
+</ul>
+</li>
 <li><a href="#documentation">Documentation</a></li>
 <li><a href="#installing">Installing</a></li>
 <li><a href="#constructing-your-own-model">Constructing your own model</a></li>

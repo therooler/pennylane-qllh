@@ -3,8 +3,7 @@
 #### *Penny Lane and the Quantum Log-Likelihood*
 
 Rocky Raccoon is meant as a framework that makes it easy to develop variational quantum circuits that
-make use of the quantum log-likelihood. In line with Penny Lane, Strawberry Fields and Blackbird, the working title for
- this framework is Rocky Raccoon.
+make use of the quantum log-likelihood. The current name is a working title.
 
 The core idea of this project can be summarized as follows: As opposed to learning a classical model probability density, 
 

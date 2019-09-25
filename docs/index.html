@@ -23,9 +23,31 @@
 <p>Main module of the QML quantum log-likelihood library</p>
 <h1 id="penny-lane-and-the-quantum-log-likelihood">Penny Lane and the Quantum Log-Likelihood</h1>
 <p>A quantum machine learning framework for minimizing the quantum log-likelihood. In line with Penny Lane,
-Strawberry Fields and Blackbird, my working title for this framework is Rocky Raccoon.</p>
+Strawberry Fields and Blackbird, the working title for this framework is Rocky Raccoon.</p>
+<p>The core idea of this project can be summarized as follows: As opposed to learning a classical model probability density, </p>
+<p><img alt="" src="docs/resources/cllh.png"></p>
+<p>we learn a parametrized density matrix instead, given by</p>
+<p><img alt="" src="docs/resources/qllh.png"></p>
+<p>Here, <img alt="" src="docs/resources/eta_x.png"> is the data density matrix, given by</p>
+<p><img alt="" src="docs/resources/eta.png"></p>
+<p>with</p>
+<p><img alt="" src="docs/resources/psi.png"></p>
+<p>where <img alt="" src="docs/resources/qyx.png"> is the conditional empirical probability of observing a certain
+label for some sample from the data.</p>
+<p>On the other hand, <img alt="" src="docs/resources/rho.png"> is our model density matrix, represented by a variational quantum circuit.
+To construct this variational quantum circuit, we use PennyLane. In order to estimate te density matrix
+of this circuit, we employ the technique of quantum state tomography.</p>
+<p>Rocky Raccoon is meant as a framework that makes it easy to develop variational quantum circuits that
+make use of the quantum log-likelihood.</p>
+<p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress).
+The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> and is
+published in <a href="http://doi.org/10.1103/PhysRevA.100.020301">Physical Review A</a>.</p>
 <p>This project is far from finished, but the most important code is there: The <code>RockyModel</code> and <code>RaccoonWrapper</code> classes
 are the core of this project and seem to work fine for now.</p>
+<h1 id="documentation">Documentation</h1>
+<p>The code documentation can be found <a href="https://therooler.github.io/pennylane-qllh/">here</a>. The Docs are generated automatically
+with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted according to PEP8 standards using
+<a href="https://black.readthedocs.io/en/stable/">Black</a>.</p>
 <h1 id="installing">Installing</h1>
 <p>The following works with Conda 4.6.12. Please use the provided environment.yml.
 If you have a CUDA enabled GPU, consider installing <code>tensorflow-gpu==1.14.0</code> instead by
@@ -50,14 +72,6 @@ changing the <code>environment.yml</code> file accordingly.</p>
 <p><code>python setup.py install clean</code></p>
 </li>
 </ol>
-<h1 id="research">Research</h1>
-<p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress).
-The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> and is
-published in <a href="http://doi.org/10.1103/PhysRevA.100.020301">Physical Review A</a>.</p>
-<h1 id="documentation">Documentation</h1>
-<p>The code documentation can be found <a href="https://therooler.github.io/pennylane-qllh/">here</a>. The Docs are generated automatically
-with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted according to PEP8 standards using
-<a href="https://black.readthedocs.io/en/stable/">Black</a>.</p>
 <h1 id="constructing-your-own-model">Constructing your own model</h1>
 <p>Rocky Raccoon consists of two parts. A <code>RockyModel</code> class that serves as a template for the hybrid-quantum model
 we wish to train, and a <code>RaccoonWrapper</code> class that minimizes the quantum log-likelihood. Both these classes
@@ -97,12 +111,12 @@ for tensorflow to work.</p>
 <p>2.) In order to determine the subsystem that we will measure to construct the density matrix, we need
 to determine beforehand how many classes we want to learn, <code>nclasses</code>. With regards to the <code>device</code> parameter,
 at the moment Rocky Raccoon only supports the <code>default.qubit</code> device. In principle we rely only on the
-<code>TFEQnode</code> Penny Lane interface, but some preliminary tests with the Qiskit backend led to buggy behaviour.
+<code>TFEQnode</code> PennyLane interface, but some preliminary tests with the Qiskit backend led to buggy behaviour.
 The variable <code>self.req_qub_out</code> is determined by the number of classes in your implementation, since we need to
 construct an appropriately sized density matrix from the circuit. On the other hand, <code>self.req_qub_in</code> can be whatever
 we want, as long as it is equal to or greater as <code>self.req_qub_out</code>. The variables <code>self.model_dev</code> and <code>self.data_dev</code>
-contain the Penny Lane device objects used for executing the quantum and data circuits, which as mentioned before only
-supports <code>default.qubit</code> for now. <code>self.circuit</code> has to be assigned a <code>TFEQnode</code> Penny Lane quantum circuit. In order
+contain the PennyLane device objects used for executing the quantum and data circuits, which as mentioned before only
+supports <code>default.qubit</code> for now. <code>self.circuit</code> has to be assigned a <code>TFEQnode</code> PennyLane quantum circuit. In order
 for <code>RaccoonWrapper</code> to properly update the gradients, we initalize a list of trainable variables in <code>self.trainable_vars</code>.</p>
 <pre><code class="python">def __str__(self):
     return 'Gradient Ob-la-descent'
@@ -142,7 +156,7 @@ amplitude encode features from the data into the wavefunction, we need to be awa
 a tensor of inputs and an observable, it should return the expectation value of the
 given <code>observable</code>. To return this value for each sample, it is recommended to use
 <code>tf.map_fn</code>, which performs a parallel map over the batch dimension. </p>
-<p><strong>Note:</strong> Unfotunately, <code>tf.map_fn</code> cannot be run in parallel since the Penny Lane
+<p><strong>Note:</strong> Unfotunately, <code>tf.map_fn</code> cannot be run in parallel since the PennyLane
 <code>TFQENode</code> casts the tensors to arrays in order work with all device backends. This
 means that <code>tf.map_fn</code> is simply a fancy wrapper of a for-loop. </p>
 <h1 id="examples">Examples</h1>
@@ -155,7 +169,7 @@ PennyLane</em> <code>StronglyEntanglingLayer</code> we entangle the zero state b
 quantum state tomography, we obtain the data and model density matrix. Then, we calculate the
 quantum log-likelihood and the corresponding gradients.</em></p>
 <h1 id="future-work">Future Work</h1>
-<p>Parallelize everything.</p>
+<p>Improve concurrency.</p>
 <details class="source">
 <summary>Source code</summary>
 <pre><code class="python">&#34;&#34;&#34;Main module of the QML quantum log-likelihood library
@@ -193,9 +207,8 @@ quantum log-likelihood and the corresponding gradients.</em></p>
 <div class="toc">
 <ul>
 <li><a href="#penny-lane-and-the-quantum-log-likelihood">Penny Lane and the Quantum Log-Likelihood</a></li>
-<li><a href="#installing">Installing</a></li>
-<li><a href="#research">Research</a></li>
 <li><a href="#documentation">Documentation</a></li>
+<li><a href="#installing">Installing</a></li>
 <li><a href="#constructing-your-own-model">Constructing your own model</a></li>
 <li><a href="#examples">Examples</a></li>
 <li><a href="#future-work">Future Work</a></li>

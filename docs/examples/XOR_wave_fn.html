@@ -30,7 +30,7 @@ from rockyraccoon.model.core import RaccoonWrapper
 from rockyraccoon.utils.plot import plot_qml_landscape_binary, plot_lh
 
 
-def multiclass_amplitude():
+def XOR_wave_fn():
     &#34;&#34;&#34;
 
     Test the amplitude QML model for a simple data set with three classes.
@@ -61,14 +61,14 @@ def multiclass_amplitude():
     X = np.vstack((X_1, X_2, X_3, X_4)) + 1
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()
 
-    wrapper.train(X, y, maxiter=800, epsilon=0.1, tol=1e-6)
+    wrapper.train(X, y, maxiter=1500, epsilon=0.1, tol=1e-6)
     plot_qml_landscape_binary(X, y, wrapper)
     plot_lh(wrapper)
 
 
 if __name__ == &#34;__main__&#34;:
 
-    multiclass_amplitude()</code></pre>
+    XOR_wave_fn()</code></pre>
 </details>
 </section>
 <section>
@@ -78,14 +78,14 @@ if __name__ == &#34;__main__&#34;:
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="rockyraccoon.examples.XOR_wave_fn.multiclass_amplitude"><code class="name flex">
-<span>def <span class="ident">multiclass_amplitude</span></span>(<span>)</span>
+<dt id="rockyraccoon.examples.XOR_wave_fn.XOR_wave_fn"><code class="name flex">
+<span>def <span class="ident">XOR_wave_fn</span></span>(<span>)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Test the amplitude QML model for a simple data set with three classes.</p></section>
 <details class="source">
 <summary>Source code</summary>
-<pre><code class="python">def multiclass_amplitude():
+<pre><code class="python">def XOR_wave_fn():
     &#34;&#34;&#34;
 
     Test the amplitude QML model for a simple data set with three classes.
@@ -116,7 +116,7 @@ if __name__ == &#34;__main__&#34;:
     X = np.vstack((X_1, X_2, X_3, X_4)) + 1
     y = np.vstack((Y_1, Y_2, Y_3, Y_4)).flatten()
 
-    wrapper.train(X, y, maxiter=800, epsilon=0.1, tol=1e-6)
+    wrapper.train(X, y, maxiter=1500, epsilon=0.1, tol=1e-6)
     plot_qml_landscape_binary(X, y, wrapper)
     plot_lh(wrapper)</code></pre>
 </details>
@@ -139,7 +139,7 @@ if __name__ == &#34;__main__&#34;:
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="rockyraccoon.examples.XOR_wave_fn.multiclass_amplitude" href="#rockyraccoon.examples.XOR_wave_fn.multiclass_amplitude">multiclass_amplitude</a></code></li>
+<li><code><a title="rockyraccoon.examples.XOR_wave_fn.XOR_wave_fn" href="#rockyraccoon.examples.XOR_wave_fn.XOR_wave_fn">XOR_wave_fn</a></code></li>
 </ul>
 </li>
 </ul>

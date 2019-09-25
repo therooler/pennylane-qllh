@@ -3,10 +3,47 @@
 # Penny Lane and the Quantum Log-Likelihood
 
 A quantum machine learning framework for minimizing the quantum log-likelihood. In line with Penny Lane, 
-Strawberry Fields and Blackbird, my working title for this framework is Rocky Raccoon.
+Strawberry Fields and Blackbird, the working title for this framework is Rocky Raccoon.
+
+The core idea of this project can be summarized as follows: As opposed to learning a classical model probability density, 
+
+![](docs/resources/cllh.png)
+
+we learn a parametrized density matrix instead, given by
+
+![](docs/resources/qllh.png)
+
+Here, ![](docs/resources/eta_x.png) is the data density matrix, given by
+
+![](docs/resources/eta.png)
+
+with
+
+![](docs/resources/psi.png)
+
+where ![](docs/resources/qyx.png) is the conditional empirical probability of observing a certain 
+label for some sample from the data.
+
+On the other hand, ![](docs/resources/rho.png) is our model density matrix, represented by a variational quantum circuit. 
+To construct this variational quantum circuit, we use PennyLane. In order to estimate te density matrix
+of this circuit, we employ the technique of quantum state tomography.
+
+Rocky Raccoon is meant as a framework that makes it easy to develop variational quantum circuits that
+make use of the quantum log-likelihood.
+
+
+The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) (work in progress). 
+The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728) and is 
+published in [Physical Review A](http://doi.org/10.1103/PhysRevA.100.020301).
 
 This project is far from finished, but the most important code is there: The `RockyModel` and `RaccoonWrapper` classes 
 are the core of this project and seem to work fine for now.
+
+# Documentation
+
+The code documentation can be found [here]( https://therooler.github.io/pennylane-qllh/). The Docs are generated automatically
+with [pdoc3](https://pypi.org/project/pdoc3/). Code is formatted according to PEP8 standards using 
+[Black](https://black.readthedocs.io/en/stable/).
 
 # Installing
 
@@ -36,19 +73,6 @@ changing the `environment.yml` file accordingly.
     `conda activate pennylane-qllh`
     
     `python setup.py install clean`
-
-
-# Research
-
-The research behind this project can be found in the [whitepaper](https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf) (work in progress). 
-The article about the quantum log-likelihood can be found on [arXiv](https://arxiv.org/abs/1905.06728) and is 
-published in [Physical Review A](http://doi.org/10.1103/PhysRevA.100.020301).
-
-# Documentation
-
-The code documentation can be found [here]( https://therooler.github.io/pennylane-qllh/). The Docs are generated automatically
-with [pdoc3](https://pypi.org/project/pdoc3/). Code is formatted according to PEP8 standards using 
-[Black](https://black.readthedocs.io/en/stable/).
 
 # Constructing your own model
 
@@ -97,12 +121,12 @@ def __init__(self, nclasses: int, device="default.qubit"):
  2.) In order to determine the subsystem that we will measure to construct the density matrix, we need
  to determine beforehand how many classes we want to learn, `nclasses`. With regards to the `device` parameter,
  at the moment Rocky Raccoon only supports the `default.qubit` device. In principle we rely only on the 
- `TFEQnode` Penny Lane interface, but some preliminary tests with the Qiskit backend led to buggy behaviour.
+ `TFEQnode` PennyLane interface, but some preliminary tests with the Qiskit backend led to buggy behaviour.
  The variable `self.req_qub_out` is determined by the number of classes in your implementation, since we need to 
  construct an appropriately sized density matrix from the circuit. On the other hand, `self.req_qub_in` can be whatever 
  we want, as long as it is equal to or greater as `self.req_qub_out`. The variables `self.model_dev` and `self.data_dev` 
- contain the Penny Lane device objects used for executing the quantum and data circuits, which as mentioned before only 
- supports `default.qubit` for now. `self.circuit` has to be assigned a `TFEQnode` Penny Lane quantum circuit. In order
+ contain the PennyLane device objects used for executing the quantum and data circuits, which as mentioned before only 
+ supports `default.qubit` for now. `self.circuit` has to be assigned a `TFEQnode` PennyLane quantum circuit. In order
  for `RaccoonWrapper` to properly update the gradients, we initalize a list of trainable variables in `self.trainable_vars`.
 
 ```python
@@ -152,7 +176,7 @@ a tensor of inputs and an observable, it should return the expectation value of 
 given `observable`. To return this value for each sample, it is recommended to use
  `tf.map_fn`, which performs a parallel map over the batch dimension. 
 
-**Note:** Unfotunately, `tf.map_fn` cannot be run in parallel since the Penny Lane 
+**Note:** Unfotunately, `tf.map_fn` cannot be run in parallel since the PennyLane 
 `TFQENode` casts the tensors to arrays in order work with all device backends. This
 means that `tf.map_fn` is simply a fancy wrapper of a for-loop. 
 

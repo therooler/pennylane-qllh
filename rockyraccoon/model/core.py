@@ -306,6 +306,9 @@ class RaccoonWrapper:
         """
 
         assert self.model.init, "Initialize the model before predicting data"
+        # add bias to inputs
+        if self.model.bias:
+            inputs = self.add_bias(inputs)
         # obtain the required expectation values to construct the density matrix from the data circuit.
         expval = tf.map_fn(
             lambda x: self.model(inputs, x), self.req_measurements, dtype=tf.float64

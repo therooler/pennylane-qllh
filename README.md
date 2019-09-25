@@ -2,7 +2,7 @@
 
 # Penny Lane and the Quantum Log-Likelihood
 
-A quantum machine learning framework for minimizing the quantum log-likelihood. In line with Penny Lane, 
+The code in this repository is a quantum machine learning framework for minimizing the quantum log-likelihood. In line with Penny Lane, 
 Strawberry Fields and Blackbird, the working title for this framework is Rocky Raccoon.
 
 The core idea of this project can be summarized as follows: As opposed to learning a classical model probability density, 

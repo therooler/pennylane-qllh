@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.3" />
+<title>rockyraccoon.utils.plot API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>rockyraccoon.utils.plot</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">import matplotlib.pyplot as plt
+import numpy as np
+
+from rockyraccoon.model.core import RaccoonWrapper
+
+from typing import List
+
+
+def plot_qml_landscape_binary(
+    X: np.ndarray, y: np.ndarray, wrapper: RaccoonWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
+):
+    &#34;&#34;&#34;
+    Plot the separation boundaries in the 2D input space.
+
+    Args:
+        X: N x d matrix of N samples and d features.
+        y: Length N vector with labels.
+        wrapper: The RaccoonWrapper we used for learning
+        cmap: String with name of matplotlib colormap, see MPL docs
+        title: String with title of the figure
+
+    &#34;&#34;&#34;
+
+    if wrapper.model.bias:
+        X = wrapper.add_bias(X)
+
+    class_0, class_1 = np.unique(y)
+    plt.rc(&#34;font&#34;, size=15)
+    cmap = plt.cm.get_cmap(cmap)
+    blue = cmap(0.0)
+    red = cmap(1.0)
+    h = 25
+    max_grid = 2
+    x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
+    y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, h), np.linspace(y_min, y_max, h))
+    if wrapper.bias:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
+    else:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
+    z = z[:, 1] - z[:, 0]
+    z = z.reshape(xx.shape)
+    fig, ax = plt.subplots()
+    ax.contour(xx, yy, z, cmap=cmap)
+    # Plot also the training points
+    y = y.flatten()
+    np.random.seed(123)
+    spread = 0.3
+    ax.scatter(
+        X[(y == class_0), 0]
+        + np.random.uniform(-spread, spread, np.sum((y == class_0))),
+        X[(y == class_0), 1]
+        + np.random.uniform(-spread, spread, np.sum((y == class_0))),
+        marker=&#34;.&#34;,
+        c=np.array([blue]),
+        label=&#34;-1&#34;,
+        s=25,
+    )
+    ax.scatter(
+        X[(y == class_1), 0]
+        + np.random.uniform(-spread, spread, np.sum((y == class_1))),
+        X[(y == class_1), 1]
+        + np.random.uniform(-spread, spread, np.sum((y == class_1))),
+        marker=&#34;x&#34;,
+        c=np.array([red]),
+        label=&#34;+1&#34;,
+        s=25,
+    )
+
+    ax.set_xlabel(&#34;$x_0$&#34;)
+    ax.set_ylabel(&#34;$x_1$&#34;)
+    ax.set_title(title)
+    ax.legend()
+
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
+    m = plt.cm.ScalarMappable(cmap=cmap)
+    m.set_array(np.linspace(-1, 1, 11))
+    plt.colorbar(m, cax=cbar_ax, boundaries=np.linspace(-1, 1, 11))
+
+    plt.show()
+
+
+def plot_lh(wrapper: RaccoonWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
+    &#34;&#34;&#34;
+
+    Args:
+        wrapper: The RaccoonWrapper we used for learning
+
+    &#34;&#34;&#34;
+    cmap = plt.cm.get_cmap(cmap)
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(wrapper.lh, c=cmap(0.2))
+    ax.set_xlabel(&#34;number of iterations&#34;)
+    ax.set_ylabel(&#34;Likelihood $\mathcal{L}$&#34;)
+    ax.set_title(title)
+    plt.show()
+
+
+def plot_qml_landscape_multiclass(
+    X: np.ndarray,
+    y: np.ndarray,
+    wrapper: RaccoonWrapper,
+    subplot_grid: List[int],
+    cmap=&#34;viridis&#34;,
+    title=&#34;&#34;,
+):
+    &#34;&#34;&#34;
+    Plot the separation boundaries of a multiclass qml model in 2D space.
+
+    Args:
+        X: N x d matrix of N samples and d features.
+        y: Length N vector with labels.
+        wrapper: The RaccoonWrapper we used for learning
+        subplot_grid: List that specifies the grid of the subplots
+        cmap: Name of MPL colormap
+        title: Title of the figure
+
+    &#34;&#34;&#34;
+
+    if wrapper.model.bias:
+        X = wrapper.add_bias(X)
+
+    assert (
+        len(subplot_grid) == 2
+    ), &#34;Expected subplot_grid to have length 2, but got iterable with length {}&#34;.format(
+        len(subplot_grid)
+    )
+    labels = np.unique(y)
+    num_classes = len(np.unique(y))
+    if num_classes == 2:
+        print(&#34;Only {} classes found, calling binary plotter instead&#34;)
+        plot_qml_landscape_binary(X, y, wrapper, cmap=cmap)
+        return
+
+    assert (
+        np.product(subplot_grid) == num_classes
+    ), &#34;wrong grid size {} for {} classes&#34;.format(subplot_grid, num_classes)
+    plt.rc(&#34;font&#34;, size=15)
+    cmap = plt.cm.get_cmap(cmap)
+    clrs = [cmap(0.0), cmap(0.5), cmap(1.0)]
+    h = 25
+    max_grid = 2
+    spread = 0.2
+    y = y.flatten()
+    x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
+    y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, h), np.linspace(y_min, y_max, h))
+    if wrapper.bias:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
+    else:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
+    sections = np.zeros_like(z)
+    idx = np.argmax(z, axis=1)
+    sections[np.arange(len(idx)), np.argmax(z, axis=1)] = 1
+    idx = idx.reshape(xx.shape)
+
+    markers = [&#34;.&#34;, &#34;*&#34;, &#34;x&#34;, &#34;v&#34;, &#34;s&#34;, &#34;1&#34;]
+    z = [el.reshape(xx.shape) for el in z.T]
+    fig, axs = plt.subplots(*subplot_grid)
+
+    if subplot_grid[0] == 1:
+        axs = axs.reshape(1, -1)
+    if subplot_grid[1] == 1:
+        axs = axs.reshape(-1, 1)
+    for i, ax in enumerate(axs.flatten()):
+        for j, label in enumerate(labels):
+            np.random.seed(2342)
+            if j != i:
+                ax.scatter(
+                    X[(y == label), 0]
+                    + np.random.uniform(-spread, spread, np.sum((y == label))),
+                    X[(y == label), 1]
+                    + np.random.uniform(-spread, spread, np.sum((y == label))),
+                    c=&#34;gray&#34;,
+                    label=label,
+                    marker=markers[label],
+                    s=50,
+                )
+            else:
+                ax.scatter(
+                    X[(y == label), 0]
+                    + np.random.uniform(-spread, spread, np.sum((y == label))),
+                    X[(y == label), 1]
+                    + np.random.uniform(-spread, spread, np.sum((y == label))),
+                    c=np.array([clrs[2]]),
+                    marker=markers[label],
+                    label=label,
+                    s=50,
+                )
+                polygon = np.zeros_like(idx)
+                polygon[idx == i] = 1
+
+                ax.contourf(
+                    xx,
+                    yy,
+                    polygon,
+                    alpha=0.1,
+                    cmap=cmap,
+                    levels=[0.5, 1],
+                    vmin=0,
+                    vmax=1,
+                )
+
+        ax.legend(prop={&#34;size&#34;: 6})
+        cs = ax.contour(xx, yy, z[i], cmap=cmap, vmin=0, vmax=1)
+        ax.clabel(cs, inline=True, inline_spacing=2, fontsize=10)
+
+    ylabels = list((x, 0) for x in range(subplot_grid[0]))
+    xlabels = list((subplot_grid[0] - 1, x) for x in range(subplot_grid[1]))
+    for ax_id in ylabels:
+        axs[ax_id].set_ylabel(r&#34;$x_1$&#34;)
+    for ax_id in xlabels:
+        axs[ax_id].set_xlabel(r&#34;$x_0$&#34;)
+
+    for ix, iy in np.ndindex(axs.shape):
+        if (ix, iy) not in xlabels:
+            axs[ix, iy].set_xticks([])
+        if (ix, iy) not in ylabels:
+            axs[ix, iy].set_yticks([])
+    fig.suptitle(title)
+
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
+    m = plt.cm.ScalarMappable(cmap=cmap)
+    m.set_array(np.linspace(0, 1, 11))
+    plt.colorbar(m, cax=cbar_ax, boundaries=np.linspace(0, 1, 11))
+
+    plt.show()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="rockyraccoon.utils.plot.plot_lh"><code class="name flex">
+<span>def <span class="ident">plot_lh</span></span>(<span>wrapper, cmap='viridis', title='')</span>
+</code></dt>
+<dd>
+<section class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>wrapper</code></strong></dt>
+<dd>The RaccoonWrapper we used for learning</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def plot_lh(wrapper: RaccoonWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;):
+    &#34;&#34;&#34;
+
+    Args:
+        wrapper: The RaccoonWrapper we used for learning
+
+    &#34;&#34;&#34;
+    cmap = plt.cm.get_cmap(cmap)
+
+    fig, ax = plt.subplots(1, 1)
+    ax.plot(wrapper.lh, c=cmap(0.2))
+    ax.set_xlabel(&#34;number of iterations&#34;)
+    ax.set_ylabel(&#34;Likelihood $\mathcal{L}$&#34;)
+    ax.set_title(title)
+    plt.show()</code></pre>
+</details>
+</dd>
+<dt id="rockyraccoon.utils.plot.plot_qml_landscape_binary"><code class="name flex">
+<span>def <span class="ident">plot_qml_landscape_binary</span></span>(<span>X, y, wrapper, cmap='viridis', title='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Plot the separation boundaries in the 2D input space.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>X</code></strong></dt>
+<dd>N x d matrix of N samples and d features.</dd>
+<dt><strong><code>y</code></strong></dt>
+<dd>Length N vector with labels.</dd>
+<dt><strong><code>wrapper</code></strong></dt>
+<dd>The RaccoonWrapper we used for learning</dd>
+<dt><strong><code>cmap</code></strong></dt>
+<dd>String with name of matplotlib colormap, see MPL docs</dd>
+<dt><strong><code>title</code></strong></dt>
+<dd>String with title of the figure</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def plot_qml_landscape_binary(
+    X: np.ndarray, y: np.ndarray, wrapper: RaccoonWrapper, cmap=&#34;viridis&#34;, title=&#34;&#34;
+):
+    &#34;&#34;&#34;
+    Plot the separation boundaries in the 2D input space.
+
+    Args:
+        X: N x d matrix of N samples and d features.
+        y: Length N vector with labels.
+        wrapper: The RaccoonWrapper we used for learning
+        cmap: String with name of matplotlib colormap, see MPL docs
+        title: String with title of the figure
+
+    &#34;&#34;&#34;
+
+    if wrapper.model.bias:
+        X = wrapper.add_bias(X)
+
+    class_0, class_1 = np.unique(y)
+    plt.rc(&#34;font&#34;, size=15)
+    cmap = plt.cm.get_cmap(cmap)
+    blue = cmap(0.0)
+    red = cmap(1.0)
+    h = 25
+    max_grid = 2
+    x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
+    y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, h), np.linspace(y_min, y_max, h))
+    if wrapper.bias:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
+    else:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
+    z = z[:, 1] - z[:, 0]
+    z = z.reshape(xx.shape)
+    fig, ax = plt.subplots()
+    ax.contour(xx, yy, z, cmap=cmap)
+    # Plot also the training points
+    y = y.flatten()
+    np.random.seed(123)
+    spread = 0.3
+    ax.scatter(
+        X[(y == class_0), 0]
+        + np.random.uniform(-spread, spread, np.sum((y == class_0))),
+        X[(y == class_0), 1]
+        + np.random.uniform(-spread, spread, np.sum((y == class_0))),
+        marker=&#34;.&#34;,
+        c=np.array([blue]),
+        label=&#34;-1&#34;,
+        s=25,
+    )
+    ax.scatter(
+        X[(y == class_1), 0]
+        + np.random.uniform(-spread, spread, np.sum((y == class_1))),
+        X[(y == class_1), 1]
+        + np.random.uniform(-spread, spread, np.sum((y == class_1))),
+        marker=&#34;x&#34;,
+        c=np.array([red]),
+        label=&#34;+1&#34;,
+        s=25,
+    )
+
+    ax.set_xlabel(&#34;$x_0$&#34;)
+    ax.set_ylabel(&#34;$x_1$&#34;)
+    ax.set_title(title)
+    ax.legend()
+
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
+    m = plt.cm.ScalarMappable(cmap=cmap)
+    m.set_array(np.linspace(-1, 1, 11))
+    plt.colorbar(m, cax=cbar_ax, boundaries=np.linspace(-1, 1, 11))
+
+    plt.show()</code></pre>
+</details>
+</dd>
+<dt id="rockyraccoon.utils.plot.plot_qml_landscape_multiclass"><code class="name flex">
+<span>def <span class="ident">plot_qml_landscape_multiclass</span></span>(<span>X, y, wrapper, subplot_grid, cmap='viridis', title='')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Plot the separation boundaries of a multiclass qml model in 2D space.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>X</code></strong></dt>
+<dd>N x d matrix of N samples and d features.</dd>
+<dt><strong><code>y</code></strong></dt>
+<dd>Length N vector with labels.</dd>
+<dt><strong><code>wrapper</code></strong></dt>
+<dd>The RaccoonWrapper we used for learning</dd>
+<dt><strong><code>subplot_grid</code></strong></dt>
+<dd>List that specifies the grid of the subplots</dd>
+<dt><strong><code>cmap</code></strong></dt>
+<dd>Name of MPL colormap</dd>
+<dt><strong><code>title</code></strong></dt>
+<dd>Title of the figure</dd>
+</dl></section>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">def plot_qml_landscape_multiclass(
+    X: np.ndarray,
+    y: np.ndarray,
+    wrapper: RaccoonWrapper,
+    subplot_grid: List[int],
+    cmap=&#34;viridis&#34;,
+    title=&#34;&#34;,
+):
+    &#34;&#34;&#34;
+    Plot the separation boundaries of a multiclass qml model in 2D space.
+
+    Args:
+        X: N x d matrix of N samples and d features.
+        y: Length N vector with labels.
+        wrapper: The RaccoonWrapper we used for learning
+        subplot_grid: List that specifies the grid of the subplots
+        cmap: Name of MPL colormap
+        title: Title of the figure
+
+    &#34;&#34;&#34;
+
+    if wrapper.model.bias:
+        X = wrapper.add_bias(X)
+
+    assert (
+        len(subplot_grid) == 2
+    ), &#34;Expected subplot_grid to have length 2, but got iterable with length {}&#34;.format(
+        len(subplot_grid)
+    )
+    labels = np.unique(y)
+    num_classes = len(np.unique(y))
+    if num_classes == 2:
+        print(&#34;Only {} classes found, calling binary plotter instead&#34;)
+        plot_qml_landscape_binary(X, y, wrapper, cmap=cmap)
+        return
+
+    assert (
+        np.product(subplot_grid) == num_classes
+    ), &#34;wrong grid size {} for {} classes&#34;.format(subplot_grid, num_classes)
+    plt.rc(&#34;font&#34;, size=15)
+    cmap = plt.cm.get_cmap(cmap)
+    clrs = [cmap(0.0), cmap(0.5), cmap(1.0)]
+    h = 25
+    max_grid = 2
+    spread = 0.2
+    y = y.flatten()
+    x_min, x_max = X[:, 0].min() - max_grid, X[:, 0].max() + max_grid
+    y_min, y_max = X[:, 1].min() - max_grid, X[:, 1].max() + max_grid
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, h), np.linspace(y_min, y_max, h))
+    if wrapper.bias:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel(), np.ones_like(yy).ravel()])
+    else:
+        z = wrapper.predict(np.c_[xx.ravel(), yy.ravel()])
+    sections = np.zeros_like(z)
+    idx = np.argmax(z, axis=1)
+    sections[np.arange(len(idx)), np.argmax(z, axis=1)] = 1
+    idx = idx.reshape(xx.shape)
+
+    markers = [&#34;.&#34;, &#34;*&#34;, &#34;x&#34;, &#34;v&#34;, &#34;s&#34;, &#34;1&#34;]
+    z = [el.reshape(xx.shape) for el in z.T]
+    fig, axs = plt.subplots(*subplot_grid)
+
+    if subplot_grid[0] == 1:
+        axs = axs.reshape(1, -1)
+    if subplot_grid[1] == 1:
+        axs = axs.reshape(-1, 1)
+    for i, ax in enumerate(axs.flatten()):
+        for j, label in enumerate(labels):
+            np.random.seed(2342)
+            if j != i:
+                ax.scatter(
+                    X[(y == label), 0]
+                    + np.random.uniform(-spread, spread, np.sum((y == label))),
+                    X[(y == label), 1]
+                    + np.random.uniform(-spread, spread, np.sum((y == label))),
+                    c=&#34;gray&#34;,
+                    label=label,
+                    marker=markers[label],
+                    s=50,
+                )
+            else:
+                ax.scatter(
+                    X[(y == label), 0]
+                    + np.random.uniform(-spread, spread, np.sum((y == label))),
+                    X[(y == label), 1]
+                    + np.random.uniform(-spread, spread, np.sum((y == label))),
+                    c=np.array([clrs[2]]),
+                    marker=markers[label],
+                    label=label,
+                    s=50,
+                )
+                polygon = np.zeros_like(idx)
+                polygon[idx == i] = 1
+
+                ax.contourf(
+                    xx,
+                    yy,
+                    polygon,
+                    alpha=0.1,
+                    cmap=cmap,
+                    levels=[0.5, 1],
+                    vmin=0,
+                    vmax=1,
+                )
+
+        ax.legend(prop={&#34;size&#34;: 6})
+        cs = ax.contour(xx, yy, z[i], cmap=cmap, vmin=0, vmax=1)
+        ax.clabel(cs, inline=True, inline_spacing=2, fontsize=10)
+
+    ylabels = list((x, 0) for x in range(subplot_grid[0]))
+    xlabels = list((subplot_grid[0] - 1, x) for x in range(subplot_grid[1]))
+    for ax_id in ylabels:
+        axs[ax_id].set_ylabel(r&#34;$x_1$&#34;)
+    for ax_id in xlabels:
+        axs[ax_id].set_xlabel(r&#34;$x_0$&#34;)
+
+    for ix, iy in np.ndindex(axs.shape):
+        if (ix, iy) not in xlabels:
+            axs[ix, iy].set_xticks([])
+        if (ix, iy) not in ylabels:
+            axs[ix, iy].set_yticks([])
+    fig.suptitle(title)
+
+    fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.85, 0.15, 0.03, 0.7])
+    m = plt.cm.ScalarMappable(cmap=cmap)
+    m.set_array(np.linspace(0, 1, 11))
+    plt.colorbar(m, cax=cbar_ax, boundaries=np.linspace(0, 1, 11))
+
+    plt.show()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="rockyraccoon.utils" href="index.html">rockyraccoon.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="rockyraccoon.utils.plot.plot_lh" href="#rockyraccoon.utils.plot.plot_lh">plot_lh</a></code></li>
+<li><code><a title="rockyraccoon.utils.plot.plot_qml_landscape_binary" href="#rockyraccoon.utils.plot.plot_qml_landscape_binary">plot_qml_landscape_binary</a></code></li>
+<li><code><a title="rockyraccoon.utils.plot.plot_qml_landscape_multiclass" href="#rockyraccoon.utils.plot.plot_qml_landscape_multiclass">plot_qml_landscape_multiclass</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

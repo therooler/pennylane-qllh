@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.6.3" />
+<title>rockyraccoon API documentation</title>
+<meta name="description" content="Main module of the QML quantum log-likelihood library …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase;cursor:pointer}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>rockyraccoon</code></h1>
+</header>
+<section id="section-intro">
+<p>Main module of the QML quantum log-likelihood library</p>
+<h1 id="rocky-raccoon">Rocky Raccoon</h1>
+<h4 id="penny-lane-and-the-quantum-log-likelihood"><em>Penny Lane and the Quantum Log-Likelihood</em></h4>
+<p>Rocky Raccoon is meant as a framework that makes it easy to develop variational quantum circuits that
+make use of the quantum log-likelihood. The current name is a working title.</p>
+<p>The core idea of this project can be summarized as follows: As opposed to learning a classical model probability density, </p>
+<p><img alt="" src="../resources/cllh.png"></p>
+<p>we learn a parametrized density matrix instead, given by</p>
+<p><img alt="" src="../resources/qllh.png"></p>
+<p>Here, <img alt="" src="../resources/eta_x.png"> is the data density matrix, given by</p>
+<p><img alt="" src="../resources/eta.png"></p>
+<p>with</p>
+<p><img alt="" src="../resources/psi.png"></p>
+<p>where <img alt="" src="../resources/qyx.png"> is the conditional empirical probability of observing a certain
+label for some sample from the data.</p>
+<p>On the other hand, <img alt="" src="../resources/rho.png"> is our model density matrix, represented by a variational quantum circuit.
+To construct this variational quantum circuit, we use PennyLane. In order to estimate te density matrix
+of this circuit, we employ the technique of quantum state tomography.</p>
+<p>The research behind this project can be found in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> (work in progress).
+The article about the quantum log-likelihood can be found on <a href="https://arxiv.org/abs/1905.06728">arXiv</a> and is
+published in <a href="http://doi.org/10.1103/PhysRevA.100.020301">Physical Review A</a>.</p>
+<p>This project is far from finished, but the most important code is there: The <code>RockyModel</code> and <code>RaccoonWrapper</code> classes
+are the core of this project and seem to work fine for now.</p>
+<h1 id="documentation">Documentation</h1>
+<p>The code documentation can be found <a href="https://therooler.github.io/pennylane-qllh/">here</a>. The Docs are generated automatically
+with <a href="https://pypi.org/project/pdoc3/">pdoc3</a>. Code is formatted according to PEP8 standards using
+<a href="https://black.readthedocs.io/en/stable/">Black</a>.</p>
+<h1 id="installing">Installing</h1>
+<p>The following works with Conda 4.6.12. Please use the provided environment.yml.
+If you have a CUDA enabled GPU, consider installing <code>tensorflow-gpu==1.14.0</code> instead by
+changing the <code>environment.yml</code> file accordingly.</p>
+<ol>
+<li>
+<p>Install Conda: <a href="https://www.digitalocean.com/community/tutorials/how-to-install-anaconda-on-ubuntu-18-04-quickstart">Quickstart</a></p>
+</li>
+<li>
+<p>Clone the git:</p>
+<p><code>git clone &lt;https://gitlab.com/rooler/pennylane-qllh.git</code>&gt;</p>
+</li>
+<li>
+<p>Create a Virtual Environment:</p>
+<p><code>conda env create -f environment.yml</code></p>
+<p>It is good to know that you can use this to update the env:</p>
+<p><code>conda env update -f environment.yml</code></p>
+<p>And removing it can be done with:</p>
+<p><code>conda remove --name pennylane-qllh --all</code>
+4. Activate the environment and install the <a title="rockyraccoon" href="#rockyraccoon"><code>rockyraccoon</code></a> package:</p>
+<p><code>conda activate pennylane-qllh</code></p>
+<p><code>python setup.py install clean</code></p>
+</li>
+</ol>
+<h1 id="constructing-your-own-model">Constructing your own model</h1>
+<p>Rocky Raccoon consists of two parts. A <code>RockyModel</code> class that serves as a template for the hybrid-quantum model
+we wish to train, and a <code>RaccoonWrapper</code> class that minimizes the quantum log-likelihood. Both these classes
+can be found in the <a title="rockyraccoon.model.core" href="model/core.html"><code>rockyraccoon.model.core</code></a> module. </p>
+<p>Writing your own <code>RockyModel</code> means defining a class that inherits from <code>RockyModel</code> and overloading the
+methods defined there. If this is done correctly, <code>RaccoonWrapper</code> will do the heavy lifting for us.
+Below we will discuss the requirements of a <code>RockyModel</code> by looking at the individual methods. In the section after that
+we will look at some example models that make use of this template. The
+<a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a> is a good reference to
+help understand the design choices made here.</p>
+<pre><code class="python">class RockyModel(tf.keras.Model):
+    &quot;&quot;&quot;
+    QML model template.
+    &quot;&quot;&quot;
+</code></pre>
+<p>1.) <code>RockyModel</code> inherits from keras Models, so that we have a clear template already for what is required
+for tensorflow to work.</p>
+<pre><code class="python">def __init__(self, nclasses: int, device=&quot;default.qubit&quot;):
+    &quot;&quot;&quot;
+    Initialize the keras model interface.
+
+    Args:
+        nclasses: The number of classes in the data, used the determine the required output qubits.
+        device: name of Pennylane Device backend.
+    &quot;&quot;&quot;
+    super(RockyModel, self).__init__()
+        self.req_qub_out = int(np.ceil(np.log2(nclasses)))
+        self.req_qub_in = None
+        self.device = device
+        self.data_dev = None
+        self.model_dev = None
+        self.nclasses = nclasses
+        self.init = False
+        self.circuit = None
+        self.trainable_vars = []
+</code></pre>
+<p>2.) In order to determine the subsystem that we will measure to construct the density matrix, we need
+to determine beforehand how many classes we want to learn, <code>nclasses</code>. With regards to the <code>device</code> parameter,
+at the moment Rocky Raccoon only supports the <code>default.qubit</code> device. In principle we rely only on the
+<code>TFEQnode</code> PennyLane interface, but some preliminary tests with the Qiskit backend led to buggy behaviour.
+The variable <code>self.req_qub_out</code> is determined by the number of classes in your implementation, since we need to
+construct an appropriately sized density matrix from the circuit. On the other hand, <code>self.req_qub_in</code> can be whatever
+we want, as long as it is equal to or greater as <code>self.req_qub_out</code>. The variables <code>self.model_dev</code> and <code>self.data_dev</code>
+contain the PennyLane device objects used for executing the quantum and data circuits, which as mentioned before only
+supports <code>default.qubit</code> for now. <code>self.circuit</code> has to be assigned a <code>TFEQnode</code> PennyLane quantum circuit. In order
+for <code>RaccoonWrapper</code> to properly update the gradients, we initalize a list of trainable variables in <code>self.trainable_vars</code>.</p>
+<pre><code class="python">def __str__(self):
+    return 'Gradient Ob-la-descent'
+</code></pre>
+<p>3.) Give your model a name.</p>
+<pre><code class="python">def initialize(self, nfeatures: int):
+    &quot;&quot;&quot;
+    Model initialization.
+
+    Args:
+        nfeatures: The number of features in X
+
+    &quot;&quot;&quot;
+    self.init = True
+    raise NotImplementedError
+</code></pre>
+<p>4.) <code>initialize</code> is called in <code>RaccoonWrapper</code> before training begins. In this method we need to make sure that our
+tensorflow variables are initialized and appended to <code>self.trainable_vars</code>, that <code>self.circuit</code> is assigned a proper <code>TFEQnode</code>
+and that <code>self.init</code> is set to <code>True</code> so that training the model can begin. Since some quantum circuits might want to
+amplitude encode features from the data into the wavefunction, we need to be aware of <code>nfeatures</code>.</p>
+<pre><code class="python">def call(self, inputs: tf.Tensor, observable: tf.Tensor):
+    &quot;&quot;&quot;
+    Given some obsersable, we calculate the output of the model.
+
+    Args:
+        inputs: N x d tf.Tensor of N samples and d features.
+        observable: tf.Tensor with Hermitian matrix containing an observable
+
+    Returns: N expectation values of the observable
+
+    &quot;&quot;&quot;
+
+    raise NotImplementedError
+</code></pre>
+<p>5.) Finally, we reach the most important method: <code>call</code>. This method is called in the
+<code>RaccoonWrapper</code> loss function to perform tomography of the model density matrix. Given
+a tensor of inputs and an observable, it should return the expectation value of the
+given <code>observable</code>. To return this value for each sample, it is recommended to use
+<code>tf.map_fn</code>, which performs a parallel map over the batch dimension. </p>
+<p><strong>Note:</strong> Unfotunately, <code>tf.map_fn</code> cannot be run in parallel since the PennyLane
+<code>TFQENode</code> casts the tensors to arrays in order work with all device backends. This
+means that <code>tf.map_fn</code> is simply a fancy wrapper of a for-loop. </p>
+<h1 id="examples">Examples</h1>
+<p>One example discussed in the <a href="https://github.com/therooler/pennylane-qllh/blob/master/docs/pennylane_qllh.pdf">whitepaper</a>
+is a quantum circuit, whose parameters are controlled by a dense neural network. Schematically this
+looks as follows:</p>
+<p><img alt="Hybrid Quantum Circuit" src="../resources/model_3.png"></p>
+<p><em>Data is encoded in the parameters of the circuit (theta) by a dense neural network. Using a
+PennyLane</em> <code>StronglyEntanglingLayer</code> we entangle the zero state based on these parameters. <em>By performing
+quantum state tomography, we obtain the data and model density matrix. Then, we calculate the
+quantum log-likelihood and the corresponding gradients.</em></p>
+<h1 id="future-work">Future Work</h1>
+<p>Improve concurrency.</p>
+<details class="source">
+<summary>Source code</summary>
+<pre><code class="python">&#34;&#34;&#34;Main module of the QML quantum log-likelihood library
+
+.. include:: ../README.md
+&#34;&#34;&#34;</code></pre>
+</details>
+</section>
+<section>
+<h2 class="section-title" id="header-submodules">Sub-modules</h2>
+<dl>
+<dt><code class="name"><a title="rockyraccoon.examples" href="examples/index.html">rockyraccoon.examples</a></code></dt>
+<dd>
+<section class="desc"><p>Examples of data fitted with this library</p></section>
+</dd>
+<dt><code class="name"><a title="rockyraccoon.model" href="model/index.html">rockyraccoon.model</a></code></dt>
+<dd>
+<section class="desc"><p>Module with QML models</p></section>
+</dd>
+<dt><code class="name"><a title="rockyraccoon.utils" href="utils/index.html">rockyraccoon.utils</a></code></dt>
+<dd>
+<section class="desc"><p>Utility functions</p></section>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul>
+<li><a href="#rocky-raccoon">Rocky Raccoon</a><ul>
+<li><a href="#penny-lane-and-the-quantum-log-likelihood">Penny Lane and the Quantum Log-Likelihood</a></li>
+</ul>
+</li>
+<li><a href="#documentation">Documentation</a></li>
+<li><a href="#installing">Installing</a></li>
+<li><a href="#constructing-your-own-model">Constructing your own model</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#future-work">Future Work</a></li>
+</ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-submodules">Sub-modules</a></h3>
+<ul>
+<li><code><a title="rockyraccoon.examples" href="examples/index.html">rockyraccoon.examples</a></code></li>
+<li><code><a title="rockyraccoon.model" href="model/index.html">rockyraccoon.model</a></code></li>
+<li><code><a title="rockyraccoon.utils" href="utils/index.html">rockyraccoon.utils</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.6.3</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
